@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wildlife Detective: TikTok vs Reality</title>
+  <style>
+    :root {
+      --primary: #1b4332;
+      --primary-light: #2d6a4f;
+      --accent: #52b788;
+      --gold: #ffb703;
+      --orange: #fb8500;
+      --danger: #e63946;
+      --surface: #ffffff;
+      --bg: #e8f5e9;
+      --text: #081c15;
+      --radius: 20px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 15px; }
+
+    #app-container {
+      width: 100%;
+      max-width: 960px;
+      min-height: 740px;
+      background: var(--surface);
+      border-radius: 28px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.1);
+      border: 5px solid var(--primary-light);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Top HUD */
+    header {
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: white;
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .brand { font-size: 1.3rem; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+    .stats { display: flex; gap: 16px; align-items: center; font-weight: 800; }
+    .stat-pill { background: rgba(255,255,255,0.2); padding: 6px 14px; border-radius: 30px; }
+
+    .progress-track { background: #b7e4c7; height: 10px; width: 100%; }
+    .progress-bar { background: var(--gold); height: 100%; width: 25%; transition: width 0.4s ease; }
+
+    /* Content Area */
+    main { padding: 24px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+    .hero-title { text-align: center; margin-bottom: 20px; }
+    .hero-title h2 { font-size: 1.8rem; color: var(--primary); }
+    .hero-title p { font-size: 1.05rem; color: #40916c; font-weight: 700; }
+
+    /* Media Grid */
+    .video-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 14px; }
+    .video-card { background: #f8faf8; border: 3px solid #b7e4c7; border-radius: var(--radius); padding: 12px; text-align: center; }
+    .video-card iframe { width: 100%; height: 190px; border-radius: 12px; border: none; }
+    
+    .link-pills { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; }
+    .link-pill {
+      background: #ffffff;
+      border: 3px solid var(--accent);
+      border-radius: 12px;
+      padding: 8px 10px;
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: var(--primary);
+      text-decoration: none;
+      text-align: center;
+      cursor: pointer;
+      display: inline-block;
+      transition: all 0.2s;
+    }
+    .link-pill:hover:not(.disabled) { background: var(--accent); color: white; transform: translateY(-2px); }
+    .link-pill.disabled { opacity: 0.65; cursor: default; background: #e8f5e9; border-color: var(--primary-light); }
+
+    /* Interactive Cards */
+    .grid-cards-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 15px 0; }
+    .card-item {
+      background: white;
+      border: 3px solid #b7e4c7;
+      border-radius: var(--radius);
+      padding: 18px;
+      text-align: center;
+      cursor: pointer;
+      box-shadow: 0 6px 0 #95d5b2;
+      transition: all 0.15s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-item:hover:not(.disabled) { transform: translateY(-3px); box-shadow: 0 9px 0 #74c69d; }
+    .card-item:active:not(.disabled) { transform: translateY(3px); box-shadow: 0 2px 0 #74c69d; }
+    .card-item.disabled { opacity: 0.5; pointer-events: none; }
+    .card-icon { font-size: 3rem; }
+    .card-label { font-size: 1.15rem; font-weight: 800; color: var(--primary); }
+    .card-desc { font-size: 0.95rem; color: #555; }
+
+    /* Minigame 4: Room Simulation */
+    .sim-box {
+      background: #fdf0d5;
+      border: 4px dashed #c6ac8f;
+      border-radius: var(--radius);
+      padding: 24px;
+      text-align: center;
+      transition: all 0.5s ease;
+    }
+    .sim-box.wild { background: #b7e4c7; border-color: var(--primary); }
+    .animal-avatar { font-size: 5rem; display: inline-block; transition: transform 0.4s; }
+    .tag { display: inline-block; padding: 6px 14px; border-radius: 20px; font-weight: bold; font-size: 0.95rem; margin-top: 10px; }
+    .tag-danger { background: var(--danger); color: white; }
+    .tag-safe { background: var(--primary); color: white; }
+
+    /* Feedback Banner */
+    .banner {
+      padding: 14px;
+      border-radius: 14px;
+      text-align: center;
+      font-size: 1.15rem;
+      font-weight: 800;
+      margin-top: 14px;
+      display: none;
+    }
+    .banner-success { background: #d8f3dc; color: #1b4332; border: 3px solid #74c69d; display: block; }
+    .banner-fail { background: #ffe3e3; color: var(--danger); border: 3px solid #ffa8a8; display: block; }
+
+    .tts-btn {
+      background: #e8f5e9;
+      border: 2px solid var(--accent);
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 6px;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 680px) {
+      body { padding: 8px; }
+      #app-container { min-height: auto; border-radius: 18px; border-width: 3px; }
+      header { padding: 12px 16px; flex-direction: column; gap: 8px; align-items: flex-start; }
+      .brand { font-size: 1.1rem; }
+      .video-grid { grid-template-columns: 1fr; }
+      .link-pills { grid-template-columns: 1fr 1fr; }
+      .grid-cards-3 { grid-template-columns: 1fr; gap: 10px; }
+      .card-item { padding: 14px; }
+      .hero-title h2 { font-size: 1.4rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="app-container">
+  <header>
+    <div class="brand">🐾 Wildlife Detective Platform</div>
+    <div class="stats">
+      <a href="../../index.html" class="stat-pill" style="color: white; text-decoration: none;" title="Return to Academy Library">📚 Academy</a>
+      <a href="slides.html" class="stat-pill" style="color: white; text-decoration: none;" title="Open Smartboard Slides">📽️ Smartboard Slides</a>
+      <span>Mission: <span id="mission-num">1</span>/4</span>
+      <span class="stat-pill">⭐ <span id="stars">0</span></span>
+    </div>
+  </header>
+  <div class="progress-track"><div id="progress" class="progress-bar"></div></div>
+
+  <main id="stage"></main>
+</div>
+
+<script>
+  // Web Audio Synthesizer
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  function playSound(type) {
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    if (type === 'good') {
+      osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+      osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
+      gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.35);
+    } else if (type === 'wrong') {
+      osc.frequency.setValueAtTime(220, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.25);
+    } else if (type === 'win') {
+      [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+        const o = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        o.connect(g);
+        g.connect(audioCtx.destination);
+        o.frequency.value = freq;
+        g.gain.setValueAtTime(0.15, audioCtx.currentTime + idx * 0.1);
+        g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + (idx + 1) * 0.12);
+        o.start(audioCtx.currentTime + idx * 0.1);
+        o.stop(audioCtx.currentTime + (idx + 1) * 0.12);
+      });
+    }
+  }
+
+  // Text-To-Speech for A1+ kids
+  function speak(text) {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.rate = 0.85;
+      u.lang = 'en-US';
+      window.speechSynthesis.speak(u);
+    }
+  }
+
+  const gameState = { mission: 1, score: 0, unlockedKeys: 0 };
+  const stage = document.getElementById('stage');
+  const missionInd = document.getElementById('mission-num');
+  const starsInd = document.getElementById('stars');
+  const progFill = document.getElementById('progress');
+
+  function addScore(pts) {
+    gameState.score += pts;
+    starsInd.innerText = gameState.score;
+  }
+
+  // --- MISSION 1: VIDEO EVIDENCE LOUNGE ---
+  let m1Done = { chew: false, herd: false };
+  function renderMission1() {
+    gameState.mission = 1;
+    gameState.score = 0;
+    gameState.unlockedKeys = 0;
+    starsInd.innerText = "0";
+    missionInd.innerText = "1";
+    progFill.style.width = "25%";
+    m1Done = { chew: false, herd: false };
+
+    stage.innerHTML = `
+      <div class="hero-title">
+        <h2>Mission 1: Video Evidence Lounge</h2>
+        <p>Watch the evidence clips and verify the animal truth!</p>
+      </div>
+
+      <div class="video-grid">
+        <div class="video-card">
+          <iframe src="https://www.youtube.com/embed/xKSdsIEMvmo" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+          <p style="margin: 8px 0; font-weight: 800;">Home Reality (Know-It-Later)</p>
+          <button id="m1-btn-chew" class="link-pill" style="width:100%;" onclick="checkM1('chew')">📺 Front teeth chew the sofa!</button>
+        </div>
+        <div class="video-card">
+          <iframe src="https://www.youtube.com/embed/koEK7cabn2s" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+          <p style="margin: 8px 0; font-weight: 800;">Wild Wetlands (Robert E Fuller)</p>
+          <button id="m1-btn-herd" class="link-pill" style="width:100%;" onclick="checkM1('herd')">🌿 It swims in a big herd!</button>
+        </div>
+      </div>
+
+      <div>
+        <p style="text-align: center; font-weight: 800; color: var(--primary);">TikTok Evidence Files:</p>
+        <div class="link-pills">
+          <a class="link-pill" target="_blank" rel="noopener noreferrer" href="https://www.tiktok.com/@unrealcapy/video/7623963592139803925">🎬 1. AI Cartoon</a>
+          <a class="link-pill" target="_blank" rel="noopener noreferrer" href="https://www.tiktok.com/@bellebuys/video/7660873127269797142">💡 2. Nightlight</a>
+          <a class="link-pill" target="_blank" rel="noopener noreferrer" href="https://www.tiktok.com/@zoolotse/video/7677693192040467745">🩺 3. Zoo Doctor</a>
+          <a class="link-pill" target="_blank" rel="noopener noreferrer" href="https://www.tiktok.com/@of.lovepp/video/7457089572070001951">🦙 4. Alpacas & Capy</a>
+        </div>
+      </div>
+      <div id="m1-banner" class="banner"></div>
+    `;
+  }
+
+  function checkM1(action) {
+    if (m1Done[action]) return;
+    const banner = document.getElementById('m1-banner');
+    if (action === 'chew') {
+      m1Done.chew = true;
+      const btn = document.getElementById('m1-btn-chew');
+      if (btn) { btn.classList.add('disabled'); btn.innerText = "✅ Front teeth chew the sofa!"; }
+      playSound('good');
+      speak("Its front teeth chew furniture!");
+      banner.className = "banner banner-success";
+      banner.innerText = "⭐ Correct! A 50-kg rodent chews furniture because teeth never stop growing!";
+      addScore(10);
+    } else if (action === 'herd') {
+      m1Done.herd = true;
+      const btn = document.getElementById('m1-btn-herd');
+      if (btn) { btn.classList.add('disabled'); btn.innerText = "✅ It swims in a big herd!"; }
+      playSound('good');
+      speak("Wild capybaras live in herds!");
+      banner.className = "banner banner-success";
+      banner.innerText = "⭐ Correct! They live in herds of 10 to 20 for predator safety!";
+      addScore(10);
+    }
+    if (m1Done.chew && m1Done.herd) setTimeout(renderMission2, 1600);
+  }
+
+  // --- MISSION 2: 5 EXOTIC ANIMALS CARE MATCHER ---
+  let m2Locked = false;
+  function renderMission2() {
+    gameState.mission = 2;
+    missionInd.innerText = "2";
+    progFill.style.width = "50%";
+    m2Locked = false;
+
+    stage.innerHTML = `
+      <div class="hero-title">
+        <h2>Mission 2: Animal Care Matcher</h2>
+        <p>Pick what this viral animal REALLY needs to survive!</p>
+      </div>
+
+      <div style="text-align: center; margin-bottom: 10px;">
+        <span style="font-size: 1.3rem; font-weight: 800; color: var(--primary);">Target: 🦎 Axolotl</span>
+        <button class="tts-btn" onclick="speak('Axolotls are critically endangered in Mexico. What do they need?')">🔊</button>
+      </div>
+
+      <div class="grid-cards-3">
+        <div class="card-item" onclick="checkM2('lamp', this)">
+          <div class="card-icon">☀️</div>
+          <div class="card-label">UV Sun Lamp</div>
+          <div class="card-desc">Needs desert heat & bugs</div>
+        </div>
+        <div class="card-item" onclick="checkM2('water', this)">
+          <div class="card-icon">❄️💧</div>
+          <div class="card-label">Cold Water Tank</div>
+          <div class="card-desc">Filtered lake water in Mexico</div>
+        </div>
+        <div class="card-item" onclick="checkM2('cage', this)">
+          <div class="card-icon">🪵</div>
+          <div class="card-label">Small Wooden Box</div>
+          <div class="card-desc">Lives in dry soil</div>
+        </div>
+      </div>
+      <div id="m2-banner" class="banner"></div>
+    `;
+  }
+
+  function checkM2(ans, el) {
+    if (m2Locked) return;
+    const banner = document.getElementById('m2-banner');
+    if (ans === 'water') {
+      m2Locked = true;
+      playSound('good');
+      speak("Axolotls need cold, clean water!");
+      banner.className = "banner banner-success";
+      banner.innerText = "🎉 Solved! Axolotls are endangered salamanders requiring clean, chilled water!";
+      addScore(15);
+      setTimeout(renderMission3, 1600);
+    } else {
+      playSound('wrong');
+      speak("Try again!");
+      banner.className = "banner banner-fail";
+      banner.innerText = "❌ Incorrect! That belongs to a desert lizard.";
+    }
+  }
+
+  // --- MISSION 3: SCREEN VS REALITY ---
+  let m3Locked = false;
+  function renderMission3() {
+    gameState.mission = 3;
+    missionInd.innerText = "3";
+    progFill.style.width = "75%";
+    m3Locked = false;
+
+    stage.innerHTML = `
+      <div class="hero-title">
+        <h2>Mission 3: Screen vs. Reality</h2>
+        <p>You see a cute viral animal on TikTok. What is the smart choice?</p>
+      </div>
+
+      <div class="grid-cards-3">
+        <div class="card-item" onclick="checkM3('buy')">
+          <div class="card-icon">📦</div>
+          <div class="card-label">Order Live Animal</div>
+          <div class="card-desc">Put a wild animal in your bedroom</div>
+        </div>
+        <div class="card-item" onclick="checkM3('toy')">
+          <div class="card-icon">💡✨</div>
+          <div class="card-label">Buy the Nightlight</div>
+          <div class="card-desc">Cute room lamp! Zero animals harmed!</div>
+        </div>
+        <div class="card-item" onclick="checkM3('cage')">
+          <div class="card-icon">🪤</div>
+          <div class="card-label">Put in Hamster Cage</div>
+          <div class="card-desc">Keep a 50kg rodent in a cage</div>
+        </div>
+      </div>
+      <div id="m3-banner" class="banner"></div>
+    `;
+  }
+
+  function checkM3(choice) {
+    if (m3Locked) return;
+    const banner = document.getElementById('m3-banner');
+    if (choice === 'toy') {
+      m3Locked = true;
+      playSound('good');
+      speak("Buy the nightlight! Keep wild animals in nature!");
+      banner.className = "banner banner-success";
+      banner.innerText = "⭐ Champion Choice! Leave wild animals in nature and enjoy the glowing lamp!";
+      addScore(15);
+      setTimeout(renderMission4, 1600);
+    } else {
+      playSound('wrong');
+      speak("No! Wild animals do not belong in a flat!");
+      banner.className = "banner banner-fail";
+      banner.innerText = "❌ Uh oh! Wild animals suffer in tiny rooms!";
+    }
+  }
+
+  // --- MISSION 4: LIVING ROOM ESCAPE ---
+  let keysUsed = [false, false, false];
+  function renderMission4() {
+    gameState.mission = 4;
+    missionInd.innerText = "4";
+    progFill.style.width = "95%";
+    gameState.unlockedKeys = 0;
+    keysUsed = [false, false, false];
+
+    stage.innerHTML = `
+      <div class="hero-title">
+        <h2>Mission 4: Send Capy to the Wetland!</h2>
+        <p>Unlock 3 wild adaptations to teleport Capy from the chewed couch to the Pantanal!</p>
+      </div>
+
+      <div class="sim-box" id="sim-display">
+        <div class="animal-avatar" id="capy-sprite">🦫🛋️</div>
+        <div><span class="tag tag-danger" id="status-tag">Apartment Alert: Chewing Wooden Chairs!</span></div>
+      </div>
+
+      <div class="grid-cards-3">
+        <div class="card-item" id="k1" onclick="unlockKey(1, 'Snorkel Face', '👀👃')">
+          <div class="card-icon">👀</div>
+          <div class="card-label">Snorkel Face</div>
+          <div class="card-desc">Eyes & nostrils on top of head</div>
+        </div>
+        <div class="card-item" id="k2" onclick="unlockKey(2, 'Webbed Toes', '🐾')">
+          <div class="card-icon">🐾</div>
+          <div class="card-label">Webbed Feet</div>
+          <div class="card-desc">Paddle flippers to swim</div>
+        </div>
+        <div class="card-item" id="k3" onclick="unlockKey(3, 'Herd Power', '🌿')">
+          <div class="card-icon">👥</div>
+          <div class="card-label">Herd of 20</div>
+          <div class="card-desc">Living with animal friends</div>
+        </div>
+      </div>
+      <div id="m4-banner" class="banner"></div>
+    `;
+  }
+
+  function unlockKey(index, title, icon) {
+    if (keysUsed[index - 1]) return;
+    keysUsed[index - 1] = true;
+    playSound('good');
+    const el = document.getElementById(`k${index}`);
+    if (el) el.classList.add('disabled');
+
+    gameState.unlockedKeys++;
+    addScore(15);
+    speak(title + " unlocked!");
+
+    const banner = document.getElementById('m4-banner');
+    banner.className = "banner banner-success";
+    banner.innerText = `✨ Unlocked: ${title}!`;
+
+    if (gameState.unlockedKeys === 1) {
+      document.getElementById('capy-sprite').innerText = "🦫💧";
+      document.getElementById('status-tag').innerText = "Diving underwater!";
+    } else if (gameState.unlockedKeys === 2) {
+      document.getElementById('capy-sprite').innerText = "🦫🏊";
+      document.getElementById('status-tag').innerText = "Swimming fast with webbed feet!";
+    } else if (gameState.unlockedKeys === 3) {
+      playSound('win');
+      document.getElementById('sim-display').classList.add('wild');
+      document.getElementById('capy-sprite').innerText = "🌊🦫🦫🌴";
+      const tag = document.getElementById('status-tag');
+      tag.className = "tag tag-safe";
+      tag.innerText = "Safe in Brazilian Pantanal Wetlands!";
+      banner.innerText = "🏆 Victory! The Capybara is home in the wild!";
+      speak("Victory! The capybara is home in the wild!");
+      setTimeout(renderCertificate, 2200);
+    }
+  }
+
+  // --- GRADUATION & CERTIFICATE ---
+  function renderCertificate() {
+    progFill.style.width = "100%";
+    stage.innerHTML = `
+      <div class="hero-title">
+        <h2>🏆 Graduation Day!</h2>
+        <p>You solved all missions, Wildlife Detective!</p>
+      </div>
+
+      <div style="border: 6px double var(--primary); padding: 30px; border-radius: 20px; text-align: center; background: #fffdf5;">
+        <div style="font-size: 4rem;">🎖️🦫</div>
+        <h1 style="color: var(--primary); margin: 10px 0;">Official Wildlife Ranger</h1>
+        <p style="font-size: 1.15rem; color: #2d6a4f;">You know the difference between TikTok and Nature!</p>
+        <p style="font-size: 1.3rem; font-weight: 800; color: var(--gold); margin: 15px 0;">Score: ${gameState.score} Points</p>
+        <div style="margin: 15px 0; font-size: 1.1rem; line-height: 1.6; color: #333;">
+          <i>"I promise to leave wild animals in nature,<br>respect their 5 welfare needs,<br>and buy the cute nightlight instead!"</i>
+        </div>
+        <button class="link-pill" style="font-size: 1.1rem; padding: 12px 30px; display:inline-block; margin-top: 15px;" onclick="renderMission1()">Play Again 🔄</button>
+      </div>
+    `;
+  }
+
+  // Init
+  renderMission1();
+</script>
+</body>
+</html>
