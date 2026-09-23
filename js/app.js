@@ -3,7 +3,7 @@
  * js/app.js
  * 
  * Handles gallery rendering, real-time search, category/grade filters,
- * quick lesson plan modals, and live XP state.
+ * quick lesson plan modals, target language display, and live XP state.
  */
 
 (function() {
@@ -73,15 +73,14 @@
       const btn = e.target.closest('.filter-btn');
       if (!btn) return;
 
-      elements.categoryFilters.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      const group = btn.dataset.filterType;
+      elements.categoryFilters.querySelectorAll(`[data-filter-type="${group}"]`).forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
 
-      const filterType = btn.dataset.filterType;
       const filterVal = btn.dataset.filterVal;
-
-      if (filterType === 'category') {
+      if (group === 'category') {
         currentCategory = filterVal;
-      } else if (filterType === 'grade') {
+      } else if (group === 'grade') {
         currentGrade = filterVal;
       }
 
@@ -114,23 +113,57 @@
     const lesson = window.SchoolStore.getLessonById(lessonId);
     if (!lesson) return;
 
-    elements.modalTitle.innerText = `📋 45-Minute Lesson Protocol: ${lesson.shortTitle}`;
+    const playLink = lesson.links ? lesson.links.play : lesson.route;
+    const slidesLink = lesson.links ? lesson.links.slides : lesson.slidesRoute;
+    const guideLink = lesson.links ? lesson.links.guide : lesson.lessonPlanRoute;
+    const levelStr = lesson.level || lesson.cefrLevel || 'A1+';
+    const durationStr = lesson.duration.toString().includes('min') ? lesson.duration : `${lesson.duration} min`;
+
+    elements.modalTitle.innerText = `📋 45-Minute Lesson Protocol: ${lesson.title}`;
     
     let html = `
-      <div style="margin-bottom: 20px;">
+      <div style="margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 8px;">
         <span class="meta-pill grade">${lesson.grade}</span>
-        <span class="meta-pill cefr">${lesson.cefrLevel}</span>
-        <span class="meta-pill">⏱️ ${lesson.duration} Minutes</span>
-        <span class="meta-pill xp">⭐ ${lesson.xp} XP</span>
+        <span class="meta-pill cefr">CEFR ${levelStr}</span>
+        <span class="meta-pill">⏱️ ${durationStr}</span>
+        <span class="meta-pill xp">⭐ ${lesson.xp || 100} XP</span>
       </div>
 
-      <div style="background: #f8fafc; border-left: 4px solid var(--indigo); padding: 14px 18px; margin-bottom: 20px; border-radius: 0 12px 12px 0;">
-        <h4 style="color: var(--primary); margin-bottom: 6px;">🎯 Core Learning Objectives:</h4>
-        <ul style="padding-left: 20px; color: #334155; line-height: 1.6;">
-          ${lesson.objectives.map(o => `<li>${o}</li>`).join('')}
-        </ul>
-      </div>
+      <p style="color: #334155; font-size: 1.05rem; line-height: 1.6; margin-bottom: 18px;">
+        ${lesson.description}
+      </p>
     `;
+
+    if (lesson.targetLanguage) {
+      html += `
+        <div style="background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; padding: 14px 18px; margin-bottom: 20px;">
+          <h4 style="color: var(--primary); margin-bottom: 8px;">💬 Target Language:</h4>
+          ${lesson.targetLanguage.grammar ? `
+            <div style="margin-bottom: 6px;">
+              <strong>Key Structures:</strong>
+              ${lesson.targetLanguage.grammar.map(g => `<code style="background: #e0e7ff; color: #3730a3; padding: 3px 8px; border-radius: 6px; font-size: 0.85rem; margin: 2px; display: inline-block;">${g}</code>`).join(' ')}
+            </div>
+          ` : ''}
+          ${lesson.targetLanguage.vocabulary ? `
+            <div>
+              <strong>Vocabulary:</strong>
+              ${lesson.targetLanguage.vocabulary.map(v => `<span style="background: #dcfce7; color: #166534; padding: 3px 8px; border-radius: 6px; font-size: 0.85rem; margin: 2px; display: inline-block; font-weight: 600;">${v}</span>`).join(' ')}
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }
+
+    if (lesson.objectives) {
+      html += `
+        <div style="background: #f8fafc; border-left: 4px solid var(--indigo); padding: 14px 18px; margin-bottom: 20px; border-radius: 0 12px 12px 0;">
+          <h4 style="color: var(--primary); margin-bottom: 6px;">🎯 Core Learning Objectives:</h4>
+          <ul style="padding-left: 20px; color: #334155; line-height: 1.6;">
+            ${lesson.objectives.map(o => `<li>${o}</li>`).join('')}
+          </ul>
+        </div>
+      `;
+    }
 
     if (lesson.tprSuperpowers) {
       html += `
@@ -151,12 +184,14 @@
 
     html += `
       <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-        <a href="${lesson.lessonPlanRoute}" target="_blank" class="btn-secondary plan-btn" style="padding: 10px 20px; font-size: 0.95rem;">
-          📄 Open Full Protocol (Markdown)
-        </a>
+        ${guideLink ? `
+          <a href="${guideLink}" target="_blank" class="btn-secondary plan-btn" style="padding: 10px 20px; font-size: 0.95rem;">
+            📄 Open Full Protocol (Markdown)
+          </a>
+        ` : '<div></div>'}
         <div style="display: flex; gap: 10px;">
-          ${lesson.hasSlides ? `<a href="${lesson.slidesRoute}" class="btn-secondary" style="padding: 10px 18px;">📽️ Open Slides</a>` : ''}
-          <a href="${lesson.route}" class="btn-primary-launch" style="padding: 10px 22px; font-size: 0.95rem;">🎮 Launch Game</a>
+          ${slidesLink ? `<a href="${slidesLink}" class="btn-secondary" style="padding: 10px 18px;">📽️ Open Slides</a>` : ''}
+          <a href="${playLink}" class="btn-primary-launch" style="padding: 10px 22px; font-size: 0.95rem;">🎮 Launch Game</a>
         </div>
       </div>
     `;
@@ -190,71 +225,102 @@
       return;
     }
 
-    elements.gallery.innerHTML = lessons.map(lesson => `
-      <article class="module-card">
-        <header class="card-header-banner" style="background: ${lesson.heroGradient};">
-          <div class="card-badge ${lesson.isNew ? 'new' : ''}">${lesson.badge}</div>
-          <div class="card-icon-title">
-            <div class="card-avatar">${lesson.icon}</div>
-            <div class="card-title-box">
-              <h3>${lesson.title}</h3>
-              <span class="card-category-tag">${lesson.category}</span>
+    elements.gallery.innerHTML = lessons.map(lesson => {
+      const playLink = lesson.links ? lesson.links.play : lesson.route;
+      const slidesLink = lesson.links ? lesson.links.slides : lesson.slidesRoute;
+      const guideLink = lesson.links ? lesson.links.guide : lesson.lessonPlanRoute;
+      const avatarIcon = lesson.thumbnail || lesson.icon || '📚';
+      const levelStr = lesson.level || lesson.cefrLevel || 'A1';
+      const durationStr = lesson.duration.toString().includes('min') ? lesson.duration : `${lesson.duration}m`;
+
+      return `
+        <article class="module-card">
+          <header class="card-header-banner" style="background: ${lesson.heroGradient || 'linear-gradient(135deg, #1b4332, #52b788)'};">
+            <div class="card-badge ${lesson.isNew ? 'new' : ''}">${lesson.badge || 'MODULE'}</div>
+            <div class="card-icon-title">
+              <div class="card-avatar">${avatarIcon}</div>
+              <div class="card-title-box">
+                <h3>${lesson.title}</h3>
+                <span class="card-category-tag">${lesson.category}</span>
+              </div>
+            </div>
+          </header>
+
+          <div class="card-body">
+            <div class="pills-bar">
+              <span class="meta-pill grade">🎓 ${lesson.grade}</span>
+              <span class="meta-pill cefr">🌍 ${levelStr}</span>
+              <span class="meta-pill">⏱️ ${durationStr}</span>
+              <span class="meta-pill xp">⭐ ${lesson.xp || 100} XP</span>
+            </div>
+
+            <p class="card-desc">${lesson.description || lesson.summary}</p>
+
+            ${lesson.targetLanguage ? `
+              <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px 14px;">
+                <div style="font-size: 0.78rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">
+                  💬 Target Language
+                </div>
+                ${lesson.targetLanguage.grammar ? `
+                  <div style="font-size: 0.85rem; color: #1e293b; margin-bottom: 4px;">
+                    <span style="color: #64748b; font-weight: 700;">Grammar:</span>
+                    ${lesson.targetLanguage.grammar.map(g => `<code style="background: #ede9fe; color: #5b21b6; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; margin: 1px;">${g}</code>`).join(' ')}
+                  </div>
+                ` : ''}
+                ${lesson.targetLanguage.vocabulary ? `
+                  <div style="font-size: 0.85rem; color: #1e293b;">
+                    <span style="color: #64748b; font-weight: 700;">Vocab:</span>
+                    ${lesson.targetLanguage.vocabulary.map(v => `<span style="background: #dcfce7; color: #166534; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; margin: 1px; display: inline-block; font-weight: 600;">${v}</span>`).join(' ')}
+                  </div>
+                ` : ''}
+              </div>
+            ` : ''}
+
+            ${lesson.missions ? `
+              <div class="missions-preview">
+                <h5>Key Activities & Stages (${lesson.missions.length})</h5>
+                <ul class="missions-list">
+                  ${lesson.missions.map(m => `<li>${m}</li>`).join('')}
+                </ul>
+              </div>
+            ` : ''}
+
+            <div class="card-actions">
+              <a href="${playLink}" class="btn-primary-launch" title="Start Student Game">
+                <span>🎮 Start Student Game</span>
+                <span>➔</span>
+              </a>
+
+              <div class="secondary-actions">
+                ${slidesLink ? `
+                  <a href="${slidesLink}" class="btn-secondary" title="Open Smartboard Presentation">
+                    <span>📽️</span>
+                    <span>Teacher Slides</span>
+                  </a>
+                ` : `
+                  <button class="btn-secondary" style="opacity:0.5; cursor:not-allowed;" title="Interactive Smartboard built-in">
+                    <span>🖥️</span>
+                    <span>Smartboard Built-in</span>
+                  </button>
+                `}
+
+                ${guideLink ? `
+                  <button class="btn-secondary plan-btn" onclick="window.appController.showProtocol('${lesson.id}')" title="View 45-Minute Lesson Script">
+                    <span>📋</span>
+                    <span>Lesson Protocol</span>
+                  </button>
+                ` : `
+                  <a href="${playLink}" class="btn-secondary plan-btn" title="View In-Game Guide">
+                    <span>📖</span>
+                    <span>Teacher Notes</span>
+                  </a>
+                `}
+              </div>
             </div>
           </div>
-        </header>
-
-        <div class="card-body">
-          <div class="pills-bar">
-            <span class="meta-pill grade">🎓 ${lesson.grade}</span>
-            <span class="meta-pill cefr">🌍 ${lesson.cefrLevel}</span>
-            <span class="meta-pill">⏱️ ${lesson.duration}m</span>
-            <span class="meta-pill xp">⭐ ${lesson.xp} XP</span>
-          </div>
-
-          <p class="card-desc">${lesson.summary}</p>
-
-          <div class="missions-preview">
-            <h5>Key Activities & Stages (${lesson.missions.length})</h5>
-            <ul class="missions-list">
-              ${lesson.missions.map(m => `<li>${m}</li>`).join('')}
-            </ul>
-          </div>
-
-          <div class="card-actions">
-            <a href="${lesson.route}" class="btn-primary-launch" title="Start Student Game">
-              <span>🎮 Start Student Game</span>
-              <span>➔</span>
-            </a>
-
-            <div class="secondary-actions">
-              ${lesson.hasSlides ? `
-                <a href="${lesson.slidesRoute}" class="btn-secondary" title="Open Smartboard Presentation">
-                  <span>📽️</span>
-                  <span>Teacher Slides</span>
-                </a>
-              ` : `
-                <button class="btn-secondary" style="opacity:0.5; cursor:not-allowed;" title="Interactive Smartboard built-in">
-                  <span>🖥️</span>
-                  <span>Smartboard Built-in</span>
-                </button>
-              `}
-
-              ${lesson.hasLessonPlan ? `
-                <button class="btn-secondary plan-btn" onclick="window.appController.showProtocol('${lesson.id}')" title="View 45-Minute Lesson Script">
-                  <span>📋</span>
-                  <span>Lesson Protocol</span>
-                </button>
-              ` : `
-                <a href="${lesson.route}" class="btn-secondary plan-btn" title="View In-Game Guide">
-                  <span>📖</span>
-                  <span>Teacher Notes</span>
-                </a>
-              `}
-            </div>
-          </div>
-        </div>
-      </article>
-    `).join('');
+        </article>
+      `;
+    }).join('');
   }
 
   window.appController = {
