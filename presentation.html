@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smartboard Presentation: TikTok Fame & Exotic Pets</title>
+  <style>
+    :root {
+      --primary: #1b4332;
+      --accent: #52b788;
+      --gold: #ffb703;
+      --bg: #081c15;
+      --card: #ffffff;
+      --text: #1b4332;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+    body {
+      background: var(--bg);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      max-width: 950px;
+      margin-bottom: 12px;
+    }
+    .game-link {
+      background: rgba(82, 183, 136, 0.2);
+      border: 2px solid var(--accent);
+      color: #b7e4c7;
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+    }
+    .game-link:hover {
+      background: var(--accent);
+      color: #081c15;
+    }
+    .fs-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    .fs-btn:hover { background: rgba(255, 255, 255, 0.2); }
+    
+    #deck {
+      width: 100%;
+      max-width: 950px;
+      min-height: 580px;
+      background: var(--card);
+      color: var(--text);
+      border-radius: 24px;
+      border: 6px solid var(--accent);
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+
+    .slide { display: none; height: 100%; flex-direction: column; justify-content: space-between; }
+    .slide.active { display: flex; }
+
+    .slide-h1 { font-size: 2.2rem; color: var(--primary); text-align: center; }
+    .slide-sub { font-size: 1.2rem; color: #40916c; text-align: center; font-weight: 700; margin-bottom: 20px; }
+
+    .grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+    .card-mini { background: #e8f5e9; border: 2px solid var(--accent); border-radius: 14px; padding: 12px; text-align: center; }
+    .card-mini span { font-size: 2.5rem; display: block; }
+    .card-mini h4 { font-size: 0.95rem; color: var(--primary); margin: 6px 0; }
+    .card-mini p { font-size: 0.8rem; color: #555; }
+
+    .compare-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    .compare-table th, .compare-table td { padding: 12px 14px; border: 2px solid #b7e4c7; text-align: left; }
+    .compare-table th { background: var(--primary); color: white; }
+
+    .chant-box { background: #fffdf0; border: 3px dashed var(--gold); border-radius: 16px; padding: 20px; text-align: center; font-size: 1.3rem; font-weight: bold; color: #b07d00; }
+
+    .deck-controls { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 950px; margin-top: 20px; }
+    .nav-btn { background: var(--accent); color: white; border: none; padding: 12px 28px; border-radius: 40px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+    .nav-btn:hover:not(:disabled) { background: #40916c; }
+    .nav-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .counter { font-size: 1.2rem; font-weight: bold; }
+
+    @media (max-width: 768px) {
+      body { padding: 10px; }
+      #deck { padding: 20px; min-height: 520px; }
+      .slide-h1 { font-size: 1.6rem; }
+      .slide-sub { font-size: 1rem; margin-bottom: 12px; }
+      .grid-5 { grid-template-columns: 1fr 1fr; }
+      .chant-box { font-size: 1.1rem; padding: 14px; }
+      .compare-table th, .compare-table td { padding: 8px 10px; font-size: 0.85rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a href="index.html" class="game-link">🎮 Launch Detective Game</a>
+  <button class="fs-btn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
+</div>
+
+<div id="deck">
+  <!-- SLIDE 1 -->
+  <div class="slide active">
+    <div style="text-align: center; margin: auto 0;">
+      <div style="font-size: 5rem;">📱🐾</div>
+      <h1 class="slide-h1">TikTok Fame & Exotic Pets</h1>
+      <p class="slide-sub">Grade 4 • CEFR A1+ Wildlife Detective Academy</p>
+      <div class="chant-box">
+        Today's Detective Mission:<br>
+        <b>Can wild animals live in a bedroom?</b>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 2 -->
+  <div class="slide">
+    <div>
+      <h2 class="slide-h1">The 5 Viral Animals</h2>
+      <p class="slide-sub">They have billions of TikTok views! But what do they need?</p>
+      <div class="grid-5">
+        <div class="card-mini"><span>🦎</span><h4>Axolotl</h4><p>Cold, clean water filter in Mexico</p></div>
+        <div class="card-mini"><span>🐍</span><h4>Ball Python</h4><p>Warm, humid tank & frozen mice</p></div>
+        <div class="card-mini"><span>🐲</span><h4>Bearded Dragon</h4><p>UV sun lamps & live crickets</p></div>
+        <div class="card-mini"><span>🕷️</span><h4>Black Widow</h4><p>Leave in nature! Dangerous venom!</p></div>
+        <div class="card-mini"><span>🦫</span><h4>Capybara</h4><p>Pond & a herd of 20 friends</p></div>
+      </div>
+    </div>
+    <div class="chant-box" style="font-size: 1.1rem; margin-top: 15px;">
+      <b>Class Rule:</b> "Cute on TikTok does not mean easy to keep!"
+    </div>
+  </div>
+
+  <!-- SLIDE 3 -->
+  <div class="slide">
+    <div>
+      <h2 class="slide-h1">Screen vs. Reality</h2>
+      <p class="slide-sub">What we see on video vs. The real world</p>
+      <table class="compare-table">
+        <tr><th>Video Type</th><th>On Your Screen</th><th>The Detective Truth</th></tr>
+        <tr><td><b>AI Video</b></td><td>Animals flying, saving friends</td><td>It is a cartoon! Not real.</td></tr>
+        <tr><td><b>Nightlight</b></td><td>Glowing Axolotl lamp</td><td><b>The Best Choice!</b> No food needed.</td></tr>
+        <tr><td><b>Zoo Video</b></td><td>Keeper brushing baby Capy</td><td>Only medical experts handle them.</td></tr>
+        <tr><td><b>Herd Video</b></td><td>Capybara with alpacas</td><td>They need huge grass fields.</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- SLIDE 4 -->
+  <div class="slide">
+    <div>
+      <h2 class="slide-h1">The 60-kg Hamster Dilemma</h2>
+      <p class="slide-sub">Why Capybaras cannot live in your house</p>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+        <div style="background: #ffe3e3; border: 3px solid #ff8787; border-radius: 16px; padding: 18px;">
+          <h3 style="color: #c92a2a;">❌ In an Apartment:</h3>
+          <p style="margin-top: 8px; font-size: 1rem; line-height: 1.6; color: #333;">
+            • Front teeth never stop growing (chews couches and tables!)<br>
+            • Bathtub is way too small (needs 6 hrs in water)<br>
+            • Smelly scent fluid on furniture<br>
+            • Gets sad and sick alone
+          </p>
+        </div>
+        <div style="background: #d8f3dc; border: 3px solid #74c69d; border-radius: 16px; padding: 18px;">
+          <h3 style="color: #2d6a4f;">✔️ In South American Wetlands:</h3>
+          <p style="margin-top: 8px; font-size: 1rem; line-height: 1.6; color: #333;">
+            • Chews wild grasses and river stems<br>
+            • Swims in deep rivers with webbed feet<br>
+            • Snorkel face (eyes and nose stay above water)<br>
+            • Herd of 20 friends protects baby pups
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 5 -->
+  <div class="slide">
+    <div style="text-align: center; margin: auto 0;">
+      <h2 class="slide-h1">Classroom Speaking Chant</h2>
+      <p class="slide-sub">Raise your hand and chant with the teacher!</p>
+      <div class="chant-box" style="font-size: 1.35rem; line-height: 1.8;">
+        🗣️ <b>Teacher:</b> "Do you want an Axolotl in your bed?"<br>
+        👥 <b>Students:</b> "No! Buy a nightlight instead!"<br><br>
+        🗣️ <b>Teacher:</b> "Can a Capybara live in a flat?"<br>
+        👥 <b>Students:</b> "No! It chews the couch and needs a river habitat!"
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="deck-controls">
+  <button id="prev-btn" class="nav-btn" onclick="prevSlide()">◀ Previous</button>
+  <span class="counter" id="slide-count">Slide 1 of 5</span>
+  <button id="next-btn" class="nav-btn" onclick="nextSlide()">Next ▶</button>
+</div>
+
+<script>
+  let cur = 0;
+  const slides = document.querySelectorAll('.slide');
+  const count = document.getElementById('slide-count');
+  const prevBtn = document.getElementById('prev-btn');
+  const nextBtn = document.getElementById('next-btn');
+
+  function update() {
+    slides.forEach((s, i) => s.classList.toggle('active', i === cur));
+    count.innerText = `Slide ${cur + 1} of ${slides.length}`;
+    prevBtn.disabled = cur === 0;
+    nextBtn.disabled = cur === slides.length - 1;
+  }
+  function nextSlide() { if (cur < slides.length - 1) { cur++; update(); } }
+  function prevSlide() { if (cur > 0) { cur--; update(); } }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextSlide(); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); prevSlide(); }
+  });
+
+  function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  }
+
+  update();
+</script>
+</body>
+</html>
