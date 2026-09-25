@@ -254,6 +254,24 @@
   </div>
 
   <!-- =========================================================================
+       EVOLUTION ROADMAP & BADGES MODAL
+       ========================================================================= -->
+  <div id="evolution-modal" class="modal-backdrop">
+    <div class="modal-dialog" style="max-width: 1080px; width: 94%; max-height: 90vh; overflow-y: auto; background: #ffffff; border-radius: 24px; padding: 24px; border: 2px solid #e2e8f0; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);">
+      <header class="modal-header" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e2e8f0; padding-bottom:14px; margin-bottom:20px;">
+        <h3 class="modal-title" style="font-size:1.35rem; font-weight:900; margin:0; display:flex; align-items:center; gap:8px;">
+          <span>🐾</span>
+          <span>Companion Evolution Journey &amp; Trophy Pins</span>
+        </h3>
+        <button type="button" class="modal-close-btn" onclick="window.appController.closeEvolutionRoadmap()" title="Close Modal">✕</button>
+      </header>
+      <div id="evolution-modal-body">
+        <!-- Injected via window.appController.openEvolutionRoadmap -->
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
        DIRECTIVE 4: CONSOLIDATED BOTTOM DOCK
        Single floating glassmorphic dock housing sound, attendance, wardrobe, timer
        Zero stacked duplicate toolbars
@@ -283,6 +301,11 @@
       <span>Wardrobe</span>
     </button>
 
+    <button type="button" class="dock-action-btn dock-btn" onclick="window.appController.openEvolutionRoadmap()" title="Open Evolution Journey &amp; Trophy Badges">
+      <span>🐾</span>
+      <span>Evolution</span>
+    </button>
+
     <div class="dock-divider"></div>
 
     <!-- Classroom Activity Timer -->
@@ -308,6 +331,7 @@
 
   <!-- Scripts -->
   <script src="js/academy-audio.js"></script>
+  <script src="js/gamification-milestones.js"></script>
   <script src="js/school-store.js"></script>
   <script src="js/app.js"></script>
 </body>

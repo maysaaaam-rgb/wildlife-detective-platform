@@ -344,8 +344,26 @@
 
     // Check level up milestone
     if (std.xp % 100 === 0) {
-      playHarmonicChime('levelUp');
-      alert(`🎉 Level Up! ${std.name} has advanced to Level ${std.level}! New wardrobe items unlocked!`);
+      if (window.triggerEvolutionCeremony) {
+        const stageMap = {
+          1: { name: 'Mystery Egg', stageKey: 'egg', description: 'A dormant egg pulsing with primal mystery.' },
+          2: { name: 'Cracking Egg', stageKey: 'cracking_egg', description: 'Glowing fissures appear as your companion begins to stir!' },
+          3: { name: 'Baby Monster', stageKey: 'baby', description: 'A lively, curious companion hatched and ready for adventure!' },
+          4: { name: 'Growing Monster', stageKey: 'growing', description: 'Taller, stronger, and radiating confident explorer energy!' },
+          5: { name: 'Adventurer Monster', stageKey: 'adventurer', description: 'Equipped with adventurer gear and ready to explore deep mysteries!' },
+          6: { name: 'Advanced Monster', stageKey: 'advanced', description: 'Majestic companion with sprawling wings and celestial aura!' },
+          7: { name: 'Ultimate Monster', stageKey: 'ultimate', description: 'The legendary sovereign form, master of language and science!' }
+        };
+        const stageInfo = stageMap[std.level] || {
+          name: `Level ${std.level} Companion`,
+          stageKey: std.level >= 6 ? 'ultimate' : (std.level >= 5 ? 'advanced' : (std.level >= 4 ? 'adventurer' : (std.level >= 3 ? 'growing' : (std.level >= 2 ? 'baby' : 'egg')))),
+          description: 'Your companion has grown stronger through dedication and teamwork!'
+        };
+        window.triggerEvolutionCeremony(std, stageInfo);
+      } else {
+        playHarmonicChime('levelUp');
+        alert(`🎉 Level Up! ${std.name} has advanced to Level ${std.level}! New wardrobe items unlocked!`);
+      }
     }
 
     setupStats();
@@ -954,6 +972,131 @@
     }).join('');
   }
 
+  /* =========================================================================
+     GAMIFICATION HUB & EVOLUTION ROADMAP CONTROLLER
+     ========================================================================= */
+  const CLASSROOM_BADGES = [
+    { id: 'badge-wild-1', name: 'Capybara Whisperer', icon: '🦫', description: 'Mastered capybara herd behavior and wetland adaptations.', xpReward: 100 },
+    { id: 'badge-wild-2', name: 'Axolotl Guardian', icon: '🦎', description: 'Investigated and protected endangered Mexican axolotl habitats.', xpReward: 150 },
+    { id: 'badge-wild-3', name: 'Snorkel Scout', icon: '👀', description: 'Executed high-accuracy TPR snorkel-face drills in class.', xpReward: 200 },
+    { id: 'badge-wild-4', name: 'Detective Ace', icon: '🕵️', description: 'Cracked the royal palace treasure mystery with zero hints.', xpReward: 250 },
+    { id: 'badge-wild-5', name: 'Myth Buster', icon: '⚡', description: 'Debunked viral exotic pet social media trends using biological facts.', xpReward: 350 },
+    { id: 'badge-wild-6', name: 'Sovereign Ranger', icon: '👑', description: 'Achieved legendary CEFR speaking fluency across all missions.', xpReward: 500 }
+  ];
+
+  const CLASSROOM_ACHIEVEMENTS = [
+    { id: 'ach-1', name: 'Wetland Explorer', icon: '🌊', requirement: 'Complete all 4 missions in the Wildlife Detective module.', xpReward: 150 },
+    { id: 'ach-2', name: 'Alibi Decoder', icon: '📜', requirement: 'Interrogate 8 suspects and verify palace alibis.', xpReward: 250 },
+    { id: 'ach-3', name: 'Living Room Escape', icon: '🚪', requirement: 'Complete the speed challenge room without disturbing the herd.', xpReward: 420 }
+  ];
+
+  const PROGRESSION_LEVELS = [
+    { id: 'lvl-1', level: 1, name: 'Mystery Egg', stageKey: 'egg', xpRequired: 0, description: 'Dormant speckled egg found in the wild.' },
+    { id: 'lvl-2', level: 2, name: 'Cracking Egg', stageKey: 'cracking_egg', xpRequired: 100, description: 'Glowing fissures appear with crackling energy.' },
+    { id: 'lvl-3', level: 3, name: 'Baby Monster', stageKey: 'baby', xpRequired: 200, description: 'Newly hatched inquisitive baby companion.' },
+    { id: 'lvl-4', level: 4, name: 'Growing Monster', stageKey: 'growing', xpRequired: 500, description: 'Sprouting taller with sharp instincts.' },
+    { id: 'lvl-5', level: 5, name: 'Adventurer Monster', stageKey: 'adventurer', xpRequired: 1000, description: 'Equipped with field explorer fedora and coat.' },
+    { id: 'lvl-6', level: 6, name: 'Advanced Monster', stageKey: 'advanced', xpRequired: 2000, description: 'Sweeping dragon wings and luminous horn crest.' },
+    { id: 'lvl-7', level: 7, name: 'Ultimate Monster', stageKey: 'ultimate', xpRequired: 5000, description: 'Celestial sovereign beast master of nature.' }
+  ];
+
+  function openEvolutionRoadmapModal() {
+    const modal = document.getElementById('evolution-modal');
+    const body = document.getElementById('evolution-modal-body');
+    if (!modal || !body) return;
+
+    playHarmonicChime('whoosh');
+
+    const students = window.SchoolStore.getStudents();
+    const highestLevel = students.reduce((max, s) => Math.max(max, s.level || 1), 1);
+
+    let html = '';
+
+    // 1. Horizontal Interactive Evolution Journey
+    if (window.GamificationMilestones && window.GamificationMilestones.renderEvolutionJourney) {
+      html += window.GamificationMilestones.renderEvolutionJourney(PROGRESSION_LEVELS, highestLevel, {
+        onEdit: 'window.appController.inspectLevel'
+      });
+    }
+
+    // 2. Physicalized Badges & Trophy Pins
+    html += `
+      <div style="margin-top: 32px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+          <div>
+            <h3 style="font-size:1.25rem; font-weight:900; color:#0f172a; margin:0;">Classroom Badges (Trophy Enamel Pins)</h3>
+            <p style="font-size:0.84rem; color:#64748b; margin:2px 0 0 0;">Tactile collectible trading badges with tiered rarity accents and 3D push-action.</p>
+          </div>
+        </div>
+        <div id="badges-grid" class="badges-trading-grid">
+          ${CLASSROOM_BADGES.map(b => {
+            if (window.GamificationMilestones && window.GamificationMilestones.renderBadgeTradingCard) {
+              return window.GamificationMilestones.renderBadgeTradingCard(b, {
+                onAward: 'window.appController.awardBadge',
+                onEdit: 'window.appController.inspectLevel'
+              });
+            }
+            return '';
+          }).join('')}
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:32px; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+          <div>
+            <h3 style="font-size:1.25rem; font-weight:900; color:#0f172a; margin:0;">Learning Achievements &amp; Quests</h3>
+            <p style="font-size:0.84rem; color:#64748b; margin:2px 0 0 0;">Tiered challenge achievements unlockable during interactive missions.</p>
+          </div>
+        </div>
+        <div id="achievements-grid" class="achievements-trading-grid">
+          ${CLASSROOM_ACHIEVEMENTS.map(a => {
+            if (window.GamificationMilestones && window.GamificationMilestones.renderAchievementTradingCard) {
+              return window.GamificationMilestones.renderAchievementTradingCard(a, {
+                onEdit: 'window.appController.inspectLevel'
+              });
+            }
+            return '';
+          }).join('')}
+        </div>
+      </div>
+    `;
+
+    body.innerHTML = html;
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeEvolutionRoadmapModal() {
+    const modal = document.getElementById('evolution-modal');
+    if (modal) modal.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  function handleAwardBadge(badgeId) {
+    const badge = CLASSROOM_BADGES.find(b => b.id === badgeId);
+    if (!badge) return;
+
+    playHarmonicChime('xp');
+
+    const students = window.SchoolStore.getStudents();
+    if (students.length > 0) {
+      const activeStudent = students[0];
+      window.SchoolStore.awardStudentXP(activeStudent.id, badge.xpReward);
+      setupStats();
+      renderClassroomGrid();
+    }
+
+    if (window.triggerEvolutionCeremony && students.length > 0) {
+      window.triggerEvolutionCeremony(students[0], {
+        name: badge.name + ' Badge Awarded!',
+        stageKey: 'adventurer',
+        description: `Awarded ${badge.name} (+${badge.xpReward} XP)! Great teamwork and detective acumen.`
+      });
+    }
+  }
+
+  function handleInspectLevel(lvlId) {
+    playHarmonicChime('snap');
+  }
+
   /* Public API exposed on window */
   window.appController = {
     showProtocol: openLessonPlanModal,
@@ -963,6 +1106,10 @@
     toggleStudentAttendance: toggleStudentAttendance,
     openCustomizer: openCustomizerModal,
     closeCustomizer: closeCustomizerModal,
+    openEvolutionRoadmap: openEvolutionRoadmapModal,
+    closeEvolutionRoadmap: closeEvolutionRoadmapModal,
+    awardBadge: handleAwardBadge,
+    inspectLevel: handleInspectLevel,
     equipItem: handleEquipItem,
     saveMonster: handleSaveMonster,
     switchWardrobeTab: handleSwitchWardrobeTab,
