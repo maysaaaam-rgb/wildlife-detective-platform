@@ -3,7 +3,7 @@
  * school-store.js
  * 
  * Central registry of interactive ESL curriculum modules, smartboard slide decks,
- * and classroom lesson protocols for Grade 3 & 4 (CEFR A1 / A1+).
+ * classroom lesson protocols, student cadets, and multi-layer avatar wardrobe.
  */
 
 (function(root) {
@@ -115,7 +115,190 @@
     }
   ];
 
+  /* =========================================================================
+     STUDENT CADETS ROSTER (Grade 4 Wildlife Detective Class)
+     ========================================================================= */
+  const DEFAULT_STUDENTS = [
+    {
+      id: "std-1",
+      name: "Leo Martinez",
+      grade: "4th Grade",
+      level: 4,
+      xp: 420,
+      avatar: {
+        glow: "gold",
+        back: "cape",
+        body: "capybara",
+        torso: "trenchcoat",
+        face: "cheerful",
+        eyewear: "monocle",
+        headwear: "deerstalker"
+      },
+      companionName: "Sherlock Capy",
+      attendance: "present"
+    },
+    {
+      id: "std-2",
+      name: "Maya Chen",
+      grade: "4th Grade",
+      level: 3,
+      xp: 340,
+      avatar: {
+        glow: "wetland",
+        back: "wings",
+        body: "axolotl",
+        torso: "explorer",
+        face: "winking",
+        eyewear: "snorkel",
+        headwear: "helmet"
+      },
+      companionName: "Aqua Axo",
+      attendance: "present"
+    },
+    {
+      id: "std-3",
+      name: "Sam Jackson",
+      grade: "4th Grade",
+      level: 2,
+      xp: 210,
+      avatar: {
+        glow: "none",
+        back: "none",
+        body: "owl",
+        torso: "wizard",
+        face: "smirk",
+        eyewear: "glasses",
+        headwear: "wizard"
+      },
+      companionName: "Professor Hoot",
+      attendance: "present"
+    },
+    {
+      id: "std-4",
+      name: "Emma Watson",
+      grade: "4th Grade",
+      level: 5,
+      xp: 590,
+      avatar: {
+        glow: "lightning",
+        back: "wings",
+        body: "fox",
+        torso: "armor",
+        face: "cheerful",
+        eyewear: "star",
+        headwear: "crown"
+      },
+      companionName: "Champion Vulpix",
+      attendance: "present"
+    },
+    {
+      id: "std-5",
+      name: "Lucas Silva",
+      grade: "4th Grade",
+      level: 3,
+      xp: 310,
+      avatar: {
+        glow: "gold",
+        back: "none",
+        body: "capybara",
+        torso: "explorer",
+        face: "cheerful",
+        eyewear: "goggles",
+        headwear: "helmet"
+      },
+      companionName: "Pantanal Paws",
+      attendance: "present"
+    },
+    {
+      id: "std-6",
+      name: "Aria Patel",
+      grade: "4th Grade",
+      level: 4,
+      xp: 450,
+      avatar: {
+        glow: "wetland",
+        back: "cape",
+        body: "axolotl",
+        torso: "trenchcoat",
+        face: "winking",
+        eyewear: "monocle",
+        headwear: "deerstalker"
+      },
+      companionName: "Detective Gills",
+      attendance: "present"
+    }
+  ];
+
+  /* =========================================================================
+     MULTI-LAYER AVATAR WARDROBE CATALOG (With strict level gating)
+     ========================================================================= */
+  const AVATAR_CATALOG = {
+    headwear: [
+      { id: "none", name: "No Hat", icon: "✖️", visual: "", unlockLevel: 1 },
+      { id: "deerstalker", name: "Detective Cap", icon: "🕵️", visual: "🧢", unlockLevel: 1 },
+      { id: "helmet", name: "Safari Helmet", icon: "🪖", visual: "🪖", unlockLevel: 2 },
+      { id: "wizard", name: "Wizard Hat", icon: "🧙", visual: "🪄", unlockLevel: 3 },
+      { id: "crown", name: "Royal Crown", icon: "👑", visual: "👑", unlockLevel: 5 }
+    ],
+    eyewear: [
+      { id: "none", name: "No Glasses", icon: "✖️", visual: "", unlockLevel: 1 },
+      { id: "monocle", name: "Detective Monocle", icon: "🧐", visual: "🔍", unlockLevel: 1 },
+      { id: "snorkel", name: "Wetland Mask", icon: "🤿", visual: "🤿", unlockLevel: 2 },
+      { id: "goggles", name: "Aviator Goggles", icon: "🥽", visual: "🥽", unlockLevel: 3 },
+      { id: "star", name: "Star Glasses", icon: "🕶️", visual: "⭐🕶️", unlockLevel: 4 }
+    ],
+    torso: [
+      { id: "none", name: "Wild Coat", icon: "✖️", visual: "", unlockLevel: 1 },
+      { id: "trenchcoat", name: "Trenchcoat", icon: "🧥", visual: "🧥", unlockLevel: 1 },
+      { id: "explorer", name: "Safari Vest", icon: "🦺", visual: "🦺", unlockLevel: 2 },
+      { id: "wizard", name: "Hero Cloak", icon: "🥋", visual: "🥋", unlockLevel: 3 },
+      { id: "armor", name: "Cyber Armor", icon: "🛡️", visual: "🛡️", unlockLevel: 5 }
+    ],
+    face: [
+      { id: "cheerful", name: "Cheerful Smile", icon: "😄", visual: "😊", unlockLevel: 1 },
+      { id: "winking", name: "Detective Wink", icon: "😉", visual: "😉", unlockLevel: 1 },
+      { id: "smirk", name: "Clever Smirk", icon: "😏", visual: "😏", unlockLevel: 2 }
+    ],
+    back: [
+      { id: "none", name: "No Back Gear", icon: "✖️", visual: "", unlockLevel: 1 },
+      { id: "cape", name: "Detective Cape", icon: "🧣", visual: "🧣", unlockLevel: 1 },
+      { id: "wings", name: "Emerald Wings", icon: "🪽", visual: "🪽", unlockLevel: 3 },
+      { id: "jetpack", name: "Rocket Pack", icon: "🚀", visual: "🚀", unlockLevel: 5 }
+    ],
+    glow: [
+      { id: "none", name: "No Aura", icon: "✖️", visual: "", unlockLevel: 1 },
+      { id: "gold", name: "Golden Sparkles", icon: "✨", visual: "✨", unlockLevel: 1 },
+      { id: "wetland", name: "Wetland Dew", icon: "💧", visual: "💧", unlockLevel: 2 },
+      { id: "lightning", name: "Neon Spark", icon: "⚡", visual: "⚡", unlockLevel: 4 }
+    ],
+    body: [
+      { id: "capybara", name: "Capybara", icon: "🦫", visual: "🦫", unlockLevel: 1 },
+      { id: "axolotl", name: "Axolotl", icon: "🦎", visual: "🦎", unlockLevel: 1 },
+      { id: "owl", name: "Forest Owl", icon: "🦉", visual: "🦉", unlockLevel: 2 },
+      { id: "fox", name: "Detective Fox", icon: "🦊", visual: "🦊", unlockLevel: 3 }
+    ]
+  };
+
+  /* Local storage keys */
+  const ROSTER_STORAGE_KEY = 'eaa_cadet_roster_v2';
+  const ACTIVE_USER_KEY = 'eaa_active_student_avatar_v2';
+
+  function getStoredStudents() {
+    try {
+      const saved = localStorage.getItem(ROSTER_STORAGE_KEY);
+      if (saved) return JSON.parse(saved);
+    } catch(e) {}
+    return JSON.parse(JSON.stringify(DEFAULT_STUDENTS));
+  }
+
+  function saveStudents(students) {
+    try {
+      localStorage.setItem(ROSTER_STORAGE_KEY, JSON.stringify(students));
+    } catch(e) {}
+  }
+
   const SchoolStore = {
+    // Curriculum modules
     getAllLessons: function() {
       return LESSON_REGISTRY.slice();
     },
@@ -143,7 +326,6 @@
     search: function(query, filters = {}) {
       const q = (query || '').toLowerCase().trim();
       return LESSON_REGISTRY.filter(lesson => {
-        // Query match
         if (q) {
           const matchTitle = lesson.title.toLowerCase().includes(q);
           const matchDesc = lesson.description.toLowerCase().includes(q);
@@ -161,18 +343,15 @@
           }
         }
 
-        // Category filter
         if (filters.category && filters.category !== 'all' && lesson.category !== filters.category) {
           return false;
         }
 
-        // Grade filter
         if (filters.grade && filters.grade !== 'all') {
           const hasGrade = lesson.grades ? lesson.grades.includes(filters.grade) : lesson.grade === filters.grade;
           if (!hasGrade) return false;
         }
 
-        // Level filter
         if (filters.cefr && filters.cefr !== 'all') {
           const lvl = lesson.level || lesson.cefrLevel;
           if (lvl !== filters.cefr) return false;
@@ -183,13 +362,78 @@
     },
 
     getStats: function() {
+      const students = getStoredStudents();
+      const totalCadets = students.length;
+      const classXP = students.reduce((acc, s) => acc + s.xp, 0);
+
       return {
         totalLessons: LESSON_REGISTRY.length,
         totalMissions: LESSON_REGISTRY.reduce((acc, l) => acc + (l.missions ? l.missions.length : 0), 0),
         totalXP: LESSON_REGISTRY.reduce((acc, l) => acc + (l.xp || 100), 0),
+        classXP: classXP,
+        totalCadets: totalCadets,
         cefrRange: "A1 – A1+",
         activeGrades: "Grade 3 & 4"
       };
+    },
+
+    // Student Roster Management
+    getStudents: function() {
+      return getStoredStudents();
+    },
+
+    awardStudentXP: function(studentId, points = 10) {
+      const students = getStoredStudents();
+      const std = students.find(s => s.id === studentId);
+      if (!std) return null;
+
+      std.xp += points;
+      // Level progression: 100 XP per level
+      std.level = Math.floor(std.xp / 100) + 1;
+      saveStudents(students);
+      return std;
+    },
+
+    toggleAttendance: function(studentId) {
+      const students = getStoredStudents();
+      const std = students.find(s => s.id === studentId);
+      if (!std) return null;
+
+      std.attendance = std.attendance === 'present' ? 'absent' : 'present';
+      saveStudents(students);
+      return std;
+    },
+
+    // Avatar Wardrobe Catalog & Stacking
+    getAvatarCatalog: function() {
+      return JSON.parse(JSON.stringify(AVATAR_CATALOG));
+    },
+
+    getActiveUserAvatar: function() {
+      try {
+        const saved = localStorage.getItem(ACTIVE_USER_KEY);
+        if (saved) return JSON.parse(saved);
+      } catch(e) {}
+
+      // Default active user is Cadet 1
+      const students = getStoredStudents();
+      return students[0] ? students[0].avatar : DEFAULT_STUDENTS[0].avatar;
+    },
+
+    equipUserAvatarItem: function(slot, itemId) {
+      const avatar = this.getActiveUserAvatar();
+      avatar[slot] = itemId;
+      try {
+        localStorage.setItem(ACTIVE_USER_KEY, JSON.stringify(avatar));
+      } catch(e) {}
+
+      // Also sync to Cadet 1
+      const students = getStoredStudents();
+      if (students[0]) {
+        students[0].avatar[slot] = itemId;
+        saveStudents(students);
+      }
+      return avatar;
     }
   };
 

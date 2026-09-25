@@ -94,9 +94,35 @@
     .chant-box { background: #fffdf0; border: 3px dashed var(--gold); border-radius: 16px; padding: 20px; text-align: center; font-size: 1.3rem; font-weight: bold; color: #b07d00; }
 
     .deck-controls { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 950px; margin-top: 20px; }
-    .nav-btn { background: var(--accent); color: white; border: none; padding: 12px 28px; border-radius: 40px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: background 0.2s; }
-    .nav-btn:hover:not(:disabled) { background: #40916c; }
-    .nav-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .nav-btn {
+      background: var(--accent);
+      color: white;
+      border: 2px solid #2d6a4f;
+      border-bottom: 5px solid #1b4332;
+      padding: 12px 30px;
+      border-radius: 16px;
+      font-size: 1.1rem;
+      font-weight: 800;
+      cursor: pointer;
+      transform: translateY(0);
+      transition: transform 0.08s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-bottom-width 0.08s ease;
+      user-select: none;
+    }
+    .nav-btn:hover:not(:disabled) {
+      filter: brightness(1.08);
+      transform: translateY(-2px);
+      border-bottom-width: 7px;
+    }
+    .nav-btn:active:not(:disabled) {
+      transform: translateY(3px);
+      border-bottom-width: 2px;
+    }
+    .nav-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      border-bottom-width: 2px;
+      transform: none;
+    }
     .counter { font-size: 1.2rem; font-weight: bold; }
 
     @media (max-width: 768px) {

@@ -1,6 +1,7 @@
 /* ==========================================================================
    ENGLISH ADVENTURE ACADEMY — UNIFIED PORTAL STYLESHEET
    css/style.css
+   Strict adherence to ADVENTURE ACADEMY UI/UX & ENGINE ARCHITECTURAL RULES
    ========================================================================== */
 
 :root {
@@ -8,18 +9,24 @@
   --primary-light: #312e81;
   --indigo: #4f46e5;
   --indigo-light: #6366f1;
+  --indigo-dark: #3730a3;
   --emerald: #059669;
   --emerald-light: #10b981;
+  --emerald-dark: #047857;
   --emerald-bg: #ecfdf5;
   --gold: #f59e0b;
   --gold-light: #fbbf24;
+  --gold-dark: #b45309;
   --coral: #ef4444;
+  --coral-dark: #b91c1c;
+  --purple: #8b5cf6;
+  --purple-dark: #6d28d9;
   
-  --bg-main: #f1f5f9;
+  --bg-main: #f0fdf4;
   --bg-surface: #ffffff;
   --bg-card: #ffffff;
-  --border-color: #e2e8f0;
-  --border-focus: #4f46e5;
+  --border-color: #cbd5e1;
+  --border-dark: #334155;
   
   --text-main: #0f172a;
   --text-muted: #64748b;
@@ -30,11 +37,8 @@
   --radius-lg: 24px;
   --radius-full: 9999px;
   
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
-  --shadow-md: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
-  --shadow-lg: 0 20px 35px -10px rgba(15, 23, 42, 0.12), 0 10px 15px -5px rgba(15, 23, 42, 0.06);
-  --shadow-card: 0 8px 24px rgba(30, 41, 59, 0.06);
-  --shadow-hover: 0 18px 38px rgba(30, 41, 59, 0.14);
+  --spring-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --spring-snap: cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 * {
@@ -45,12 +49,111 @@
 }
 
 body {
-  background-color: var(--bg-main);
+  background: linear-gradient(180deg, #e8f5e9 0%, #f1f5f9 40%, #e2e8f0 100%);
   color: var(--text-main);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   line-height: 1.5;
+  padding-bottom: 90px; /* Space for consolidated bottom dock */
+}
+
+/* ==========================================================================
+   DIRECTIVE 1: TACTILE 3D BUTTONS (Commercial EdTech / Blooket Fidelity)
+   ========================================================================== */
+.btn-3d {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 800;
+  font-size: 0.95rem;
+  padding: 12px 22px;
+  border-radius: 16px;
+  border: 2px solid rgba(0, 0, 0, 0.12);
+  border-bottom: 5px solid var(--btn-lip, #3730a3);
+  background: var(--btn-bg, #4f46e5);
+  color: #ffffff;
+  text-decoration: none;
+  cursor: pointer;
+  transform: translateY(0);
+  transition: transform 0.08s var(--spring-snap), border-bottom-width 0.08s ease, filter 0.12s ease;
+  user-select: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.btn-3d:hover:not(:disabled) {
+  filter: brightness(1.08);
+  transform: translateY(-2px);
+  border-bottom-width: 7px;
+}
+
+.btn-3d:active:not(:disabled) {
+  transform: translateY(3px); /* Physically compresses down 3px-4px */
+  border-bottom-width: 2px;
+  filter: brightness(0.96);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+
+.btn-3d:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  filter: grayscale(0.5);
+  pointer-events: none;
+}
+
+/* 3D Button Color Themes */
+.btn-3d-indigo {
+  --btn-bg: #4f46e5;
+  --btn-lip: #312e81;
+}
+
+.btn-3d-emerald {
+  --btn-bg: #059669;
+  --btn-lip: #047857;
+}
+
+.btn-3d-gold {
+  --btn-bg: #f59e0b;
+  --btn-lip: #b45309;
+  color: #78350f;
+}
+
+.btn-3d-coral {
+  --btn-bg: #ef4444;
+  --btn-lip: #b91c1c;
+}
+
+.btn-3d-purple {
+  --btn-bg: #8b5cf6;
+  --btn-lip: #6d28d9;
+}
+
+.btn-3d-slate {
+  --btn-bg: #475569;
+  --btn-lip: #1e293b;
+}
+
+.btn-3d-ghost {
+  --btn-bg: #ffffff;
+  --btn-lip: #cbd5e1;
+  color: #1e293b;
+  border-color: #cbd5e1;
+}
+
+.btn-3d-sm {
+  padding: 8px 14px;
+  font-size: 0.85rem;
+  border-radius: 12px;
+  border-bottom-width: 4px;
+}
+.btn-3d-sm:hover:not(:disabled) {
+  border-bottom-width: 5px;
+}
+.btn-3d-sm:active:not(:disabled) {
+  transform: translateY(2px);
+  border-bottom-width: 2px;
 }
 
 /* ==========================================================================
@@ -64,10 +167,11 @@ body {
   position: sticky;
   top: 0;
   z-index: 100;
+  border-bottom: 4px solid #4338ca;
 }
 
 .header-container {
-  max-width: 1280px;
+  max-width: 1320px;
   margin: 0 auto;
   display: flex;
   justify-content: space-between;
@@ -86,9 +190,11 @@ body {
 .brand-icon {
   font-size: 2.2rem;
   background: rgba(255, 255, 255, 0.12);
-  width: 52px;
-  height: 52px;
-  border-radius: var(--radius-md);
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  border-bottom: 4px solid rgba(0, 0, 0, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -96,8 +202,8 @@ body {
 }
 
 .brand-info h1 {
-  font-size: 1.4rem;
-  font-weight: 800;
+  font-size: 1.45rem;
+  font-weight: 900;
   letter-spacing: -0.02em;
   background: linear-gradient(to right, #ffffff, #c7d2fe);
   -webkit-background-clip: text;
@@ -107,22 +213,22 @@ body {
 .brand-info p {
   font-size: 0.85rem;
   color: #a5b4fc;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
 }
 
 .stat-pill {
   background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(8px);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-bottom: 4px solid rgba(0, 0, 0, 0.25);
   padding: 8px 18px;
   border-radius: var(--radius-full);
-  font-weight: 700;
+  font-weight: 800;
   font-size: 0.95rem;
   display: flex;
   align-items: center;
@@ -131,7 +237,9 @@ body {
 }
 
 .stat-pill.gold {
-  border-color: rgba(251, 191, 36, 0.5);
+  background: rgba(251, 191, 36, 0.18);
+  border-color: rgba(251, 191, 36, 0.6);
+  border-bottom-color: #b45309;
   color: #fef3c7;
 }
 
@@ -139,18 +247,33 @@ body {
    HERO BANNER
    ========================================================================== */
 .hero-section {
-  background: linear-gradient(135deg, #312e81 0%, #4338ca 50%, #4f46e5 100%);
+  background: linear-gradient(135deg, #1b4332 0%, #2d6a4f 50%, #1e1b4b 100%);
   color: white;
-  padding: 48px 32px 40px;
-  border-bottom: 4px solid #6366f1;
+  padding: 44px 32px 38px;
+  border-bottom: 5px solid #047857;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 450px;
+  height: 100%;
+  background: radial-gradient(circle at 80% 50%, rgba(82, 183, 136, 0.2) 0%, transparent 70%);
+  pointer-events: none;
 }
 
 .hero-container {
-  max-width: 1280px;
+  max-width: 1320px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 22px;
+  position: relative;
+  z-index: 1;
 }
 
 .hero-headline h2 {
@@ -158,67 +281,305 @@ body {
   font-weight: 900;
   letter-spacing: -0.03em;
   line-height: 1.2;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .hero-headline p {
   font-size: 1.15rem;
-  color: #c7d2fe;
-  max-width: 750px;
-  font-weight: 500;
+  color: #b7e4c7;
+  max-width: 780px;
+  font-weight: 600;
 }
 
 .hero-metrics {
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
-  margin-top: 10px;
+  margin-top: 6px;
 }
 
 .metric-card {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: var(--radius-md);
-  padding: 12px 20px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-bottom: 4px solid rgba(0, 0, 0, 0.25);
+  border-radius: 16px;
+  padding: 10px 18px;
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.metric-icon {
-  font-size: 1.8rem;
+.metric-icon { font-size: 1.8rem; }
+.metric-data h4 { font-size: 1.25rem; font-weight: 900; color: white; }
+.metric-data span { font-size: 0.78rem; color: #d8f3dc; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; }
+
+/* ==========================================================================
+   ACADEMY PORTAL SECTIONS (NAVIGATION TABS)
+   ========================================================================== */
+.view-tabs-bar {
+  max-width: 1320px;
+  margin: 28px auto 0;
+  padding: 0 32px;
+  display: flex;
+  gap: 14px;
 }
 
-.metric-data h4 {
-  font-size: 1.2rem;
-  font-weight: 800;
-  color: white;
-}
-
-.metric-data span {
-  font-size: 0.8rem;
-  color: #cbd5e1;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  font-weight: 700;
+.tab-btn {
+  font-size: 1.05rem;
+  padding: 12px 26px;
+  border-radius: 16px 16px 0 0;
 }
 
 /* ==========================================================================
-   EXPLORER & FILTER CONTROLS
+   DIRECTIVE 3: STUDENT CLASSROOM GRID (MAIN DIRECTORY)
+   - 55%–60% of student card height allocated to companion graphic
+   - Isometric glowing pedestal (radial-gradient)
+   - Subtle floating CSS physics (animation: idleBob 3s ease-in-out infinite)
+   - Single prominent 3D button (+10 XP) per card
+   - Secondary actions collapsed into overflow menu (•••)
+   ========================================================================== */
+.classroom-section {
+  max-width: 1320px;
+  width: 100%;
+  margin: 24px auto 30px;
+  padding: 0 32px;
+}
+
+.section-title-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.section-title-bar h3 {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.student-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 26px;
+}
+
+.student-card {
+  height: 420px; /* Fixed height container to enforce 55%-60% companion allocation */
+  background: var(--bg-card);
+  border-radius: 24px;
+  border: 3px solid #cbd5e1;
+  border-bottom: 6px solid #94a3b8;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  transition: transform 0.3s var(--spring-bounce), box-shadow 0.3s ease, border-color 0.2s ease;
+}
+
+.student-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 35px -10px rgba(15, 23, 42, 0.18);
+  border-color: #6366f1;
+  border-bottom-color: #4338ca;
+}
+
+/* TOP 55%–60% STAGE FOR COMPANION GRAPHIC */
+.student-companion-stage {
+  height: 58%; /* Exactly 58% of card height */
+  width: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 40%, rgba(99, 102, 241, 0.15) 0%, rgba(238, 242, 255, 0.8) 60%, #ffffff 100%);
+  border-bottom: 2px dashed #e2e8f0;
+}
+
+/* Isometric glowing pedestal */
+.pedestal-disc {
+  position: absolute;
+  bottom: 14px;
+  width: 140px;
+  height: 36px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(79, 70, 229, 0.4) 0%, rgba(99, 102, 241, 0.15) 50%, transparent 75%);
+  box-shadow: 0 8px 20px rgba(79, 70, 229, 0.25);
+  transform: scaleY(0.7);
+  z-index: 1;
+}
+
+/* Creature with idleBob floating physics */
+.companion-graphic {
+  z-index: 2;
+  font-size: 5rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: idleBob 3s ease-in-out infinite;
+  filter: drop-shadow(0 12px 16px rgba(0, 0, 0, 0.18));
+  user-select: none;
+  object-fit: contain;
+}
+
+@keyframes idleBob {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Card badges */
+.student-level-tag {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  background: #1e1b4b;
+  color: #fef08a;
+  font-size: 0.8rem;
+  font-weight: 900;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+  z-index: 5;
+}
+
+/* Overflow Menu (•••) */
+.student-overflow-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid #cbd5e1;
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  color: #475569;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.2s;
+}
+
+.student-overflow-btn:hover {
+  background: #f1f5f9;
+  color: var(--text-main);
+  transform: scale(1.08);
+}
+
+.overflow-dropdown {
+  position: absolute;
+  top: 50px;
+  right: 12px;
+  background: white;
+  border: 2px solid #cbd5e1;
+  border-radius: 14px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  display: none;
+  flex-direction: column;
+  padding: 6px;
+  min-width: 140px;
+  z-index: 20;
+}
+
+.overflow-dropdown.show {
+  display: flex;
+}
+
+.overflow-item {
+  background: transparent;
+  border: none;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #334155;
+  text-align: left;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.overflow-item:hover {
+  background: #f1f5f9;
+  color: var(--indigo);
+}
+
+/* BOTTOM 42% INFO & PRIMARY ACTION */
+.student-info-plate {
+  padding: 16px 20px 18px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: #ffffff;
+}
+
+.student-name-box h4 {
+  font-size: 1.15rem;
+  font-weight: 900;
+  color: var(--primary);
+}
+
+.student-companion-name {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #40916c;
+}
+
+/* Single Primary Action: +10 XP Button */
+.btn-xp-award {
+  width: 100%;
+  padding: 12px;
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+/* Floating XP Particle */
+.xp-float-particle {
+  position: absolute;
+  font-weight: 900;
+  color: #059669;
+  font-size: 1.3rem;
+  pointer-events: none;
+  animation: floatUpFade 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  z-index: 100;
+  text-shadow: 0 2px 8px rgba(255,255,255,0.9);
+}
+
+@keyframes floatUpFade {
+  0% { transform: translateY(0) scale(0.8); opacity: 1; }
+  100% { transform: translateY(-45px) scale(1.3); opacity: 0; }
+}
+
+/* ==========================================================================
+   EXPLORER & FILTER CONTROLS (CURRICULUM LIBRARY)
    ========================================================================== */
 .controls-section {
-  max-width: 1280px;
+  max-width: 1320px;
   width: 100%;
-  margin: 32px auto 0;
+  margin: 10px auto 0;
   padding: 0 32px;
 }
 
 .controls-card {
   background: var(--bg-surface);
-  border-radius: var(--radius-md);
+  border-radius: 20px;
   padding: 20px 24px;
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  border: 3px solid #cbd5e1;
+  border-bottom: 5px solid #94a3b8;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -248,8 +609,8 @@ body {
   width: 100%;
   padding: 14px 16px 14px 48px;
   font-size: 1rem;
-  border-radius: var(--radius-md);
-  border: 2px solid var(--border-color);
+  border-radius: 14px;
+  border: 2px solid #cbd5e1;
   background: #f8fafc;
   color: var(--text-main);
   outline: none;
@@ -259,7 +620,7 @@ body {
 .search-input:focus {
   border-color: var(--indigo);
   background: white;
-  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.12);
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15);
 }
 
 .filters-row {
@@ -280,14 +641,16 @@ body {
 
 .filter-btn {
   background: #f1f5f9;
-  border: 2px solid #e2e8f0;
+  border: 2px solid #cbd5e1;
+  border-bottom: 4px solid #94a3b8;
   padding: 8px 16px;
-  border-radius: var(--radius-full);
+  border-radius: 14px;
   font-size: 0.9rem;
-  font-weight: 700;
+  font-weight: 800;
   color: #475569;
   cursor: pointer;
-  transition: all 0.2s;
+  transform: translateY(0);
+  transition: all 0.1s;
 }
 
 .filter-btn:hover {
@@ -295,49 +658,54 @@ body {
   color: var(--text-main);
 }
 
+.filter-btn:active {
+  transform: translateY(2px);
+  border-bottom-width: 2px;
+}
+
 .filter-btn.active {
   background: var(--indigo);
-  border-color: var(--indigo);
+  border-color: #3730a3;
+  border-bottom: 4px solid #1e1b4b;
   color: white;
-  box-shadow: 0 4px 10px rgba(79, 70, 229, 0.25);
 }
 
 /* ==========================================================================
    MODULES GALLERY
    ========================================================================== */
 .gallery-section {
-  max-width: 1280px;
+  max-width: 1320px;
   width: 100%;
-  margin: 28px auto 60px;
+  margin: 24px auto 40px;
   padding: 0 32px;
   flex: 1;
 }
 
 .gallery-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(440px, 1fr));
   gap: 28px;
 }
 
 .module-card {
   background: var(--bg-card);
-  border-radius: var(--radius-lg);
-  border: 2px solid var(--border-color);
-  box-shadow: var(--shadow-card);
+  border-radius: 24px;
+  border: 3px solid #cbd5e1;
+  border-bottom: 6px solid #94a3b8;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08);
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.3s var(--spring-bounce);
   position: relative;
 }
 
 .module-card:hover {
   transform: translateY(-6px);
-  box-shadow: var(--shadow-hover);
-  border-color: #cbd5e1;
+  box-shadow: 0 20px 38px rgba(30, 41, 59, 0.16);
+  border-color: #94a3b8;
 }
 
-/* Card Banner */
 .card-header-banner {
   padding: 24px;
   color: white;
@@ -345,6 +713,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  border-bottom: 4px solid rgba(0, 0, 0, 0.2);
 }
 
 .card-badge {
@@ -353,18 +722,19 @@ body {
   right: 18px;
   background: rgba(255, 255, 255, 0.95);
   color: #1e1b4b;
-  font-size: 0.75rem;
+  font-size: 0.78rem;
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  padding: 5px 12px;
+  padding: 6px 14px;
   border-radius: var(--radius-full);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.18);
 }
 
 .card-badge.new {
   background: #fef08a;
   color: #854d0e;
+  border: 2px solid #ca8a04;
 }
 
 .card-icon-title {
@@ -378,7 +748,8 @@ body {
   background: rgba(255, 255, 255, 0.18);
   width: 76px;
   height: 76px;
-  border-radius: var(--radius-md);
+  border-radius: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -388,7 +759,7 @@ body {
 
 .card-title-box h3 {
   font-size: 1.45rem;
-  font-weight: 800;
+  font-weight: 900;
   line-height: 1.25;
   color: white;
   margin-bottom: 6px;
@@ -397,14 +768,13 @@ body {
 .card-category-tag {
   display: inline-block;
   font-size: 0.82rem;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.9);
-  background: rgba(0, 0, 0, 0.2);
-  padding: 3px 10px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.95);
+  background: rgba(0, 0, 0, 0.25);
+  padding: 3px 12px;
   border-radius: var(--radius-full);
 }
 
-/* Card Body */
 .card-body {
   padding: 24px;
   flex: 1;
@@ -421,28 +791,18 @@ body {
 }
 
 .meta-pill {
-  font-size: 0.82rem;
-  font-weight: 700;
-  padding: 4px 10px;
-  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 800;
+  padding: 5px 12px;
+  border-radius: 10px;
   background: #f1f5f9;
+  border: 2px solid #e2e8f0;
   color: #475569;
 }
 
-.meta-pill.grade {
-  background: #ede9fe;
-  color: #6d28d9;
-}
-
-.meta-pill.cefr {
-  background: #dcfce7;
-  color: #15803d;
-}
-
-.meta-pill.xp {
-  background: #fef3c7;
-  color: #b45309;
-}
+.meta-pill.grade { background: #ede9fe; border-color: #ddd6fe; color: #6d28d9; }
+.meta-pill.cefr { background: #dcfce7; border-color: #bbf7d0; color: #15803d; }
+.meta-pill.xp { background: #fef3c7; border-color: #fde68a; color: #b45309; }
 
 .card-desc {
   font-size: 0.98rem;
@@ -450,115 +810,295 @@ body {
   line-height: 1.6;
 }
 
-.missions-preview {
+.target-lang-box {
   background: #f8fafc;
-  border: 1px dashed #cbd5e1;
-  border-radius: var(--radius-md);
-  padding: 14px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 14px;
 }
 
-.missions-preview h5 {
-  font-size: 0.82rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-muted);
-  margin-bottom: 8px;
-}
-
-.missions-list {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.missions-list li {
-  font-size: 0.88rem;
-  color: #1e293b;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.missions-list li::before {
-  content: '🎯';
-  font-size: 0.75rem;
-}
-
-/* Card Actions */
 .card-actions {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding-top: 10px;
-  border-top: 1px solid #f1f5f9;
+  gap: 12px;
+  padding-top: 14px;
+  border-top: 2px dashed #e2e8f0;
 }
 
 .btn-primary-launch {
-  background: linear-gradient(135deg, var(--indigo), #4338ca);
-  color: white;
-  text-decoration: none;
-  font-size: 1.05rem;
-  font-weight: 800;
+  width: 100%;
   padding: 14px 20px;
-  border-radius: var(--radius-md);
-  text-align: center;
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-.btn-primary-launch:hover {
-  background: linear-gradient(135deg, #4338ca, #3730a3);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 18px rgba(79, 70, 229, 0.4);
+  font-size: 1.1rem;
 }
 
 .secondary-actions {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-.btn-secondary {
-  background: #f8fafc;
-  border: 2px solid #e2e8f0;
-  color: #334155;
-  text-decoration: none;
-  font-size: 0.88rem;
-  font-weight: 700;
-  padding: 10px 14px;
-  border-radius: var(--radius-md);
-  text-align: center;
-  transition: all 0.15s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  cursor: pointer;
-}
-
-.btn-secondary:hover {
-  background: #e2e8f0;
-  color: var(--text-main);
-  border-color: #cbd5e1;
-}
-
-.btn-secondary.plan-btn {
-  background: #fffbeb;
-  border-color: #fde68a;
-  color: #92400e;
-}
-
-.btn-secondary.plan-btn:hover {
-  background: #fef3c7;
+  gap: 12px;
 }
 
 /* ==========================================================================
-   MODAL / LESSON PROTOCOL DRAWER
+   DIRECTIVE 2: MULTI-LAYER COMPOSITE VIEWPORT (AVATARS & CUSTOMIZERS)
+   - Strict z-index stacking:
+     z-0: Ambient Glow / Aura
+     z-10: Back Gear (Capes, Wings)
+     z-20: Base Body Sprite & Paws
+     z-30: Torso Clothing & Vests
+     z-40: Facial Features (Eyes, Cheerful Mouth)
+     z-50: Eyewear (Glasses, Goggles)
+     z-60: Horns & Headwear (Hats, Headbands)
+   - Real-time layer update
+   - Locked items: pointer-events: none, opacity 0.45, lock indicator
+   ========================================================================== */
+.avatar-modal-dialog {
+  background: #ffffff;
+  width: 100%;
+  max-width: 900px;
+  border-radius: 28px;
+  border: 4px solid var(--primary);
+  border-bottom: 8px solid #0f172a;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.customizer-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  min-height: 480px;
+}
+
+/* STAGE VIEWPORT */
+.customizer-viewport-box {
+  background: radial-gradient(circle at 50% 40%, #ffffff 0%, #e0f2fe 60%, #bae6fd 100%);
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-right: 3px solid #cbd5e1;
+  position: relative;
+}
+
+.avatar-composite-stage {
+  width: 240px;
+  height: 240px;
+  position: relative;
+  margin-bottom: 20px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 50%, #ffffff 0%, #ecfdf5 60%, #b7e4c7 100%);
+  border: 6px solid #52b788;
+  box-shadow: 0 16px 36px rgba(16, 185, 129, 0.25), inset 0 0 20px rgba(82, 183, 136, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+}
+
+/* STRICT Z-INDEX STACKING */
+.composite-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  transition: all 0.2s var(--spring-bounce);
+}
+
+.layer-glow     { z-index: 0; }  /* z-0: Ambient Glow / Aura */
+.layer-back     { z-index: 10; } /* z-10: Back Gear (Capes, Wings) */
+.layer-body     { z-index: 20; } /* z-20: Base Body Sprite & Paws */
+.layer-torso    { z-index: 30; } /* z-30: Torso Clothing & Vests */
+.layer-face     { z-index: 40; } /* z-40: Facial Features */
+.layer-eyewear  { z-index: 50; } /* z-50: Eyewear */
+.layer-headwear { z-index: 60; } /* z-60: Horns & Headwear */
+
+.layer-glow-content { font-size: 8rem; opacity: 0.7; filter: blur(6px); animation: pulseGlow 2.5s infinite alternate; }
+.layer-back-content { font-size: 6.5rem; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.2)); }
+.layer-body-content { font-size: 6rem; filter: drop-shadow(0 10px 14px rgba(0,0,0,0.18)); }
+.layer-torso-content { font-size: 5rem; transform: translateY(18px); }
+.layer-face-content { font-size: 4rem; transform: translateY(-4px); }
+.layer-eyewear-content { font-size: 4rem; transform: translateY(-16px); }
+.layer-headwear-content { font-size: 4.8rem; transform: translateY(-46px); }
+
+@keyframes pulseGlow {
+  0% { transform: scale(0.95); opacity: 0.5; }
+  100% { transform: scale(1.1); opacity: 0.85; }
+}
+
+/* WARDROBE DRAWER & ITEMS */
+.customizer-drawer {
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: #ffffff;
+  overflow-y: auto;
+  max-height: 520px;
+}
+
+.wardrobe-tabs {
+  display: flex;
+  gap: 8px;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 10px;
+  overflow-x: auto;
+}
+
+.wardrobe-tab-btn {
+  background: #f1f5f9;
+  border: 2px solid #cbd5e1;
+  padding: 6px 14px;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: #475569;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.wardrobe-tab-btn.active {
+  background: var(--indigo);
+  border-color: var(--indigo-dark);
+  color: white;
+}
+
+.wardrobe-items-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 14px;
+  padding-top: 6px;
+}
+
+.wardrobe-item-card {
+  background: #f8fafc;
+  border: 2px solid #cbd5e1;
+  border-bottom: 4px solid #94a3b8;
+  border-radius: 16px;
+  padding: 12px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.15s;
+  user-select: none;
+}
+
+.wardrobe-item-card:hover:not(.locked) {
+  transform: translateY(-2px);
+  border-color: var(--indigo);
+  background: #eef2ff;
+}
+
+.wardrobe-item-card.equipped {
+  border-color: #10b981;
+  border-bottom-color: #047857;
+  background: #ecfdf5;
+}
+
+/* Locked item state */
+.wardrobe-item-card.locked {
+  pointer-events: none;
+  opacity: 0.45;
+  filter: grayscale(0.8);
+  border-style: dashed;
+}
+
+.wardrobe-lock-tag {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: #1e1b4b;
+  color: #ffffff;
+  font-size: 0.68rem;
+  font-weight: 900;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+.item-icon { font-size: 2.2rem; }
+.item-label { font-size: 0.78rem; font-weight: 800; color: #334155; text-align: center; }
+
+/* ==========================================================================
+   DIRECTIVE 4: CONSOLIDATED BOTTOM DOCK
+   - Single floating glassmorphic dock
+   - Sound FX, Attendance, Wardrobe, Timer, Navigation
+   - Zero stacked duplicate toolbars
+   ========================================================================== */
+.bottom-dock {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-bottom: 4px solid rgba(0, 0, 0, 0.4);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-full);
+  padding: 8px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 999;
+}
+
+.dock-btn {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-bottom: 3px solid rgba(0, 0, 0, 0.3);
+  color: white;
+  padding: 8px 14px;
+  border-radius: 14px;
+  font-size: 0.88rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+  user-select: none;
+}
+
+.dock-btn:hover {
+  background: rgba(255, 255, 255, 0.22);
+  transform: translateY(-2px);
+}
+
+.dock-btn:active {
+  transform: translateY(2px);
+  border-bottom-width: 1px;
+}
+
+.dock-btn.active {
+  background: var(--indigo);
+  border-color: #818cf8;
+}
+
+.dock-divider {
+  width: 1px;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Classroom Timer Floating Badge in Dock */
+.dock-timer-badge {
+  color: #fef08a;
+  font-weight: 900;
+  font-family: monospace;
+  font-size: 1rem;
+}
+
+/* ==========================================================================
+   MODAL / POPUPS
    ========================================================================== */
 .modal-backdrop {
   position: fixed;
@@ -567,7 +1107,7 @@ body {
   width: 100vw;
   height: 100vh;
   background: rgba(15, 23, 42, 0.7);
-  backdrop-filter: blur(6px);
+  backdrop-filter: blur(8px);
   display: none;
   justify-content: center;
   align-items: center;
@@ -584,12 +1124,13 @@ body {
   width: 100%;
   max-width: 820px;
   max-height: 88vh;
-  border-radius: var(--radius-lg);
+  border-radius: 24px;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   border: 4px solid var(--indigo);
+  border-bottom: 8px solid var(--indigo-dark);
 }
 
 .modal-header {
@@ -599,19 +1140,17 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  border-bottom: 4px solid #1e1b4b;
 }
 
-.modal-title {
-  font-size: 1.3rem;
-  font-weight: 800;
-}
+.modal-title { font-size: 1.3rem; font-weight: 900; }
 
 .modal-close-btn {
   background: rgba(255, 255, 255, 0.15);
-  border: none;
+  border: 2px solid rgba(255, 255, 255, 0.3);
   color: white;
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   cursor: pointer;
   font-size: 1.2rem;
@@ -630,13 +1169,13 @@ body {
 footer {
   background: #0f172a;
   color: #94a3b8;
-  padding: 30px 32px;
+  padding: 30px 32px 40px;
   margin-top: auto;
-  border-top: 1px solid #1e293b;
+  border-top: 4px solid #1e293b;
 }
 
 .footer-container {
-  max-width: 1280px;
+  max-width: 1320px;
   margin: 0 auto;
   display: flex;
   justify-content: space-between;
@@ -662,4 +1201,9 @@ footer {
   .gallery-section { padding: 0 18px; }
   .gallery-grid { grid-template-columns: 1fr; }
   .secondary-actions { grid-template-columns: 1fr; }
+  
+  .customizer-layout { grid-template-columns: 1fr; }
+  .customizer-viewport-box { border-right: none; border-bottom: 3px solid #cbd5e1; }
+  
+  .bottom-dock { width: 92%; overflow-x: auto; padding: 6px 12px; gap: 8px; justify-content: flex-start; }
 }

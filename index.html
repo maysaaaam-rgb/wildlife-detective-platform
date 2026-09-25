@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>English Adventure Academy | Main Portal & Activity Library</title>
-  <meta name="description" content="Digital ESL Academy for young English learners. Featuring interactive smartboard lessons, wildlife biology detective missions, and royal mystery team investigations." />
+  <title>English Adventure Academy | Interactive ESL Platform</title>
+  <meta name="description" content="Digital ESL Academy for young English learners. Featuring tactile 3D gameplay, multi-layer avatar companions, and commercial EdTech gamification." />
   
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
   <link rel="stylesheet" href="css/style.css" />
@@ -12,7 +12,7 @@
 <body>
 
   <!-- =========================================================================
-       ACADEMY HEADER
+       ACADEMY TOP HEADER
        ========================================================================= -->
   <header class="academy-header">
     <div class="header-container">
@@ -26,13 +26,12 @@
 
       <div class="header-actions">
         <div class="stat-pill gold">
-          <span>⭐ Student XP:</span>
-          <span id="user-xp-val">100</span>
+          <span>⭐ Class XP:</span>
+          <span id="user-xp-val">2320</span>
         </div>
-        <div class="stat-pill">
-          <span>🖥️</span>
-          <span>Smartboard Ready</span>
-        </div>
+        <button class="btn-3d btn-3d-gold btn-3d-sm" onclick="window.appController.openCustomizer('std-1')" title="Open Avatar Wardrobe">
+          <span>🦫 Companion Wardrobe</span>
+        </button>
       </div>
     </div>
   </header>
@@ -45,14 +44,14 @@
       <div class="hero-headline">
         <h2>Inspire Young Detectives Through Language & Science</h2>
         <p>
-          Gamified classroom modules combining video evidence, physical TPR movements, 
-          mystery solving, and cooperative smartboard gameplay.
+          Commercial-grade gamified ESL classroom modules combining real video evidence, 
+          physical TPR movements, tactile 3D button physics, and multi-layer avatar companions.
         </p>
       </div>
 
       <div class="hero-metrics">
         <div class="metric-card">
-          <div class="metric-icon">📚</div>
+          <div class="metric-icon">🐾</div>
           <div class="metric-data">
             <h4 id="metric-total-lessons">2</h4>
             <span>Core Modules</span>
@@ -71,15 +70,15 @@
           <div class="metric-icon">⭐</div>
           <div class="metric-data">
             <h4 id="metric-total-xp">220 XP</h4>
-            <span>Available XP</span>
+            <span>Module XP</span>
           </div>
         </div>
 
         <div class="metric-card">
-          <div class="metric-icon">🌍</div>
+          <div class="metric-icon">👥</div>
           <div class="metric-data">
-            <h4>A1 – A1+</h4>
-            <span>CEFR Level Range</span>
+            <h4>6 Cadets</h4>
+            <span>Active Roster</span>
           </div>
         </div>
       </div>
@@ -87,9 +86,29 @@
   </section>
 
   <!-- =========================================================================
-       SEARCH & FILTERS
+       DIRECTIVE 3: STUDENT CLASSROOM GRID (MAIN DIRECTORY)
        ========================================================================= -->
-  <section class="controls-section">
+  <section class="classroom-section" id="cadets-section">
+    <div class="section-title-bar">
+      <h3>
+        <span>🐾</span>
+        <span>Grade 4 Detective Cadets & Animal Companions</span>
+      </h3>
+      <button class="btn-3d btn-3d-purple btn-3d-sm" onclick="window.appController.openCustomizer('std-1')">
+        <span>✨ Dressing Room</span>
+      </button>
+    </div>
+
+    <!-- Student Cards: 55-60% companion height, isometric pedestal, idleBob, +10 XP primary action -->
+    <div id="student-grid" class="student-grid">
+      <!-- Populated dynamically by js/app.js -->
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       SEARCH & FILTERS (CURRICULUM LIBRARY)
+       ========================================================================= -->
+  <section class="controls-section" id="curriculum-section">
     <div class="controls-card">
       <div class="search-row">
         <div class="search-input-wrapper">
@@ -98,7 +117,7 @@
             type="text" 
             id="search-input" 
             class="search-input" 
-            placeholder="Search modules by topic, animal, grammar, or keyword (e.g., Capybara, Axolotl, Treasure)..." 
+            placeholder="Search modules by topic, animal, grammar, or keyword (e.g., Capybara, Axolotl, Treasure, Snorkel Face)..." 
           />
         </div>
       </div>
@@ -106,13 +125,13 @@
       <div class="filters-row" id="category-filters">
         <span class="filter-label">Category:</span>
         <button class="filter-btn active" data-filter-type="category" data-filter-val="all">All Modules</button>
-        <button class="filter-btn" data-filter-type="category" data-filter-val="Media Literacy & Science (CLIL)">🐾 Science & CLIL</button>
+        <button class="filter-btn" data-filter-type="category" data-filter-val="Science & Media Literacy">🐾 Science & Media Literacy</button>
         <button class="filter-btn" data-filter-type="category" data-filter-val="Detective & Mystery">🕵️ Detective & Mystery</button>
         
         <span class="filter-label" style="margin-left: 14px;">Grade:</span>
         <button class="filter-btn active" data-filter-type="grade" data-filter-val="all">All Grades</button>
-        <button class="filter-btn" data-filter-type="grade" data-filter-val="Grade 3">Grade 3</button>
-        <button class="filter-btn" data-filter-type="grade" data-filter-val="Grade 4">Grade 4</button>
+        <button class="filter-btn" data-filter-type="grade" data-filter-val="4th Grade">4th Grade</button>
+        <button class="filter-btn" data-filter-type="grade" data-filter-val="3rd & 4th Grade">3rd & 4th Grade</button>
       </div>
     </div>
   </section>
@@ -125,6 +144,68 @@
       <!-- Dynamically populated by js/app.js -->
     </div>
   </main>
+
+  <!-- =========================================================================
+       DIRECTIVE 2: MULTI-LAYER COMPOSITE VIEWPORT (AVATAR CUSTOMIZER & WARDROBE)
+       Strict z-index stacking:
+       z-0: Ambient Glow / Aura
+       z-10: Back Gear (Capes, Wings)
+       z-20: Base Body Sprite & Paws
+       z-30: Torso Clothing & Vests
+       z-40: Facial Features (Eyes, Cheerful Mouth)
+       z-50: Eyewear (Glasses, Goggles)
+       z-60: Horns & Headwear (Hats, Headbands)
+       ========================================================================= -->
+  <div id="avatar-customizer-modal" class="modal-backdrop">
+    <div class="avatar-modal-dialog">
+      <header class="modal-header">
+        <h3 class="modal-title">🦫 Companion Dressing Room & Wardrobe</h3>
+        <button id="avatar-modal-close-btn" class="modal-close-btn" title="Close Wardrobe">✕</button>
+      </header>
+
+      <div class="customizer-layout">
+        <!-- Viewport Box: Multi-layer composite stage -->
+        <div class="customizer-viewport-box">
+          <span id="customizer-level-tag" class="student-level-tag" style="position:static; margin-bottom: 12px;">
+            ⭐ Sherlock Capy (LVL 4)
+          </span>
+
+          <!-- Strict Stacking Stage Viewport -->
+          <div class="avatar-composite-stage" id="avatar-viewport">
+            <!-- z-0: Ambient Glow / Aura -->
+            <div id="layer-glow" class="composite-layer layer-glow"></div>
+            <!-- z-10: Back Gear (Capes, Wings) -->
+            <div id="layer-back" class="composite-layer layer-back"></div>
+            <!-- z-20: Base Body Sprite & Paws -->
+            <div id="layer-body" class="composite-layer layer-body"></div>
+            <!-- z-30: Torso Clothing & Vests -->
+            <div id="layer-torso" class="composite-layer layer-torso"></div>
+            <!-- z-40: Facial Features -->
+            <div id="layer-face" class="composite-layer layer-face"></div>
+            <!-- z-50: Eyewear -->
+            <div id="layer-eyewear" class="composite-layer layer-eyewear"></div>
+            <!-- z-60: Horns & Headwear -->
+            <div id="layer-headwear" class="composite-layer layer-headwear"></div>
+          </div>
+
+          <div style="font-size: 0.85rem; color: #475569; font-weight: 800; text-align: center;">
+            Multi-Layer Composite Viewport (z-0 to z-60)
+          </div>
+        </div>
+
+        <!-- Wardrobe Drawer -->
+        <div class="customizer-drawer">
+          <div class="wardrobe-tabs" id="wardrobe-tabs">
+            <!-- Populated dynamically -->
+          </div>
+
+          <div class="wardrobe-items-grid" id="wardrobe-items-grid">
+            <!-- Populated dynamically with level-gating -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- =========================================================================
        LESSON PLAN PROTOCOL MODAL
@@ -142,15 +223,54 @@
   </div>
 
   <!-- =========================================================================
+       DIRECTIVE 4: CONSOLIDATED BOTTOM DOCK
+       Single floating glassmorphic dock housing sound, attendance, wardrobe, timer
+       Zero stacked duplicate toolbars
+       ========================================================================= -->
+  <nav class="bottom-dock" id="bottom-dock" aria-label="Quick Action Dock">
+    <!-- Sound FX Toggle -->
+    <button class="dock-btn active" id="dock-sound-btn" title="Toggle Sound FX">
+      <span>🔊</span>
+      <span>Sound ON</span>
+    </button>
+
+    <div class="dock-divider"></div>
+
+    <!-- Quick Navigation Anchors -->
+    <a href="#cadets-section" class="dock-btn" title="Jump to Student Cadets Grid">
+      <span>👥</span>
+      <span>Cadets</span>
+    </a>
+
+    <a href="#curriculum-section" class="dock-btn" title="Jump to Curriculum Modules">
+      <span>📚</span>
+      <span>Library</span>
+    </a>
+
+    <button class="dock-btn" onclick="window.appController.openCustomizer('std-1')" title="Open Avatar Wardrobe">
+      <span>🦫</span>
+      <span>Wardrobe</span>
+    </button>
+
+    <div class="dock-divider"></div>
+
+    <!-- Classroom Activity Timer -->
+    <button class="dock-btn" id="dock-timer-btn" title="Classroom Timer (Click to cycle 5m / 10m / 15m / Off)">
+      <span>⏱️</span>
+      <span id="dock-timer-badge" class="dock-timer-badge">--:--</span>
+    </button>
+  </nav>
+
+  <!-- =========================================================================
        FOOTER
        ========================================================================= -->
   <footer>
     <div class="footer-container">
       <div>
-        <strong>🎓 English Adventure Academy</strong> • Created for interactive classroom & smartboard excellence.
+        <strong>🎓 English Adventure Academy</strong> • Commercial EdTech Gamification Architecture (Duolingo & Blooket Fidelity).
       </div>
       <div>
-        Active Modules: <strong>2</strong> • Grade 3 & 4 Focus • CEFR A1+
+        Strictly adhering to Architectural Directives 1–4.
       </div>
     </div>
   </footer>
