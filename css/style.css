@@ -361,6 +361,10 @@ body {
   gap: 10px;
 }
 
+.classroom-section {
+  padding-bottom: 100px; /* Ensures bottom floating utility bar never overlaps the bottom row of cards */
+}
+
 .student-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -368,29 +372,67 @@ body {
 }
 
 .student-card {
-  height: 420px; /* Fixed height container to enforce 55%-60% companion allocation */
+  height: 420px; /* Enforces 55% companion allocation and 45% plate */
   background: var(--bg-card);
   border-radius: 24px;
-  border: 3px solid #cbd5e1;
-  border-bottom: 6px solid #94a3b8;
-  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08);
+  border: 2px solid #e2e8f0;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   position: relative;
-  transition: transform 0.3s var(--spring-bounce), box-shadow 0.3s ease, border-color 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
+/* Interactive lift effect when hovering over the card */
 .student-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 20px 35px -10px rgba(15, 23, 42, 0.18);
-  border-color: #6366f1;
-  border-bottom-color: #4338ca;
+  transform: translateY(-4px);
+  box-shadow: 0 12px 20px -2px rgba(0, 0, 0, 0.08);
+  border-color: #cbd5e1;
 }
 
-/* TOP 55%–60% STAGE FOR COMPANION GRAPHIC */
+/* Elemental hover accents */
+.student-card.element-fire:hover,
+.student-card.element-ember:hover {
+  border-color: #f87171;
+}
+.student-card.element-nature:hover,
+.student-card.element-forest:hover {
+  border-color: #34d399;
+}
+.student-card.element-astral:hover,
+.student-card.element-cosmic:hover {
+  border-color: #a78bfa;
+}
+.student-card.element-thunder:hover,
+.student-card.element-electric:hover {
+  border-color: #fbbf24;
+}
+
+/* Level indicator chip: small rounded chip at the top of the card */
+.student-level-chip,
+.student-level-tag {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1.5px solid #e2e8f0;
+  color: #1e293b;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  backdrop-filter: blur(4px);
+}
+
+/* TOP 55% STAGE FOR MONSTER SPRITE / EGG (Rendered at full scale with object-fit: contain) */
 .student-companion-stage {
-  height: 58%; /* Exactly 58% of card height */
+  height: 55%; /* Dedicated 55% of card height */
   width: 100%;
   position: relative;
   display: flex;
@@ -398,34 +440,71 @@ body {
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background: radial-gradient(circle at 50% 40%, rgba(99, 102, 241, 0.15) 0%, rgba(238, 242, 255, 0.8) 60%, #ffffff 100%);
-  border-bottom: 2px dashed #e2e8f0;
+  border-bottom: 2px dashed #f1f5f9;
+  background: radial-gradient(circle at 50% 45%, rgba(16, 185, 129, 0.08) 0%, rgba(248, 250, 252, 0.8) 60%, #ffffff 100%);
 }
 
-/* Isometric glowing pedestal */
+.student-companion-stage.element-fire,
+.student-companion-stage.element-ember {
+  background: radial-gradient(circle at 50% 45%, rgba(239, 68, 68, 0.12) 0%, rgba(254, 242, 242, 0.8) 60%, #ffffff 100%);
+}
+
+.student-companion-stage.element-nature,
+.student-companion-stage.element-forest {
+  background: radial-gradient(circle at 50% 45%, rgba(16, 185, 129, 0.12) 0%, rgba(236, 253, 245, 0.8) 60%, #ffffff 100%);
+}
+
+.student-companion-stage.element-astral,
+.student-companion-stage.element-cosmic {
+  background: radial-gradient(circle at 50% 45%, rgba(139, 92, 246, 0.12) 0%, rgba(245, 243, 255, 0.8) 60%, #ffffff 100%);
+}
+
+.student-companion-stage.element-thunder,
+.student-companion-stage.element-electric {
+  background: radial-gradient(circle at 50% 45%, rgba(234, 179, 8, 0.12) 0%, rgba(254, 252, 232, 0.8) 60%, #ffffff 100%);
+}
+
+/* Elemental Pedestal Glow Variations */
 .pedestal-disc {
   position: absolute;
-  bottom: 14px;
+  bottom: 12px;
   width: 140px;
-  height: 36px;
+  height: 34px;
   border-radius: 50%;
-  background: radial-gradient(ellipse at center, rgba(79, 70, 229, 0.4) 0%, rgba(99, 102, 241, 0.15) 50%, transparent 75%);
-  box-shadow: 0 8px 20px rgba(79, 70, 229, 0.25);
   transform: scaleY(0.7);
   z-index: 1;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* Creature with idleBob floating physics */
-.companion-graphic {
-  z-index: 2;
-  font-size: 5rem;
-  line-height: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.pedestal-disc,
+.pedestal-disc.element-nature,
+.pedestal-disc.element-forest {
+  background: radial-gradient(ellipse at center, rgba(16, 185, 129, 0.35) 0%, rgba(16, 185, 129, 0.12) 50%, transparent 75%);
+  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.25);
+}
+
+.pedestal-disc.element-fire,
+.pedestal-disc.element-ember {
+  background: radial-gradient(ellipse at center, rgba(239, 68, 68, 0.35) 0%, rgba(249, 115, 22, 0.15) 50%, transparent 75%);
+  box-shadow: 0 8px 20px rgba(239, 68, 68, 0.25);
+}
+
+.pedestal-disc.element-astral,
+.pedestal-disc.element-cosmic {
+  background: radial-gradient(ellipse at center, rgba(139, 92, 246, 0.35) 0%, rgba(139, 92, 246, 0.12) 50%, transparent 75%);
+  box-shadow: 0 8px 20px rgba(139, 92, 246, 0.25);
+}
+
+.pedestal-disc.element-thunder,
+.pedestal-disc.element-electric {
+  background: radial-gradient(ellipse at center, rgba(234, 179, 8, 0.35) 0%, rgba(245, 158, 11, 0.12) 50%, transparent 75%);
+  box-shadow: 0 8px 20px rgba(234, 179, 8, 0.25);
+}
+
+/* Idle CSS breathing float */
+.roster-sprite {
   animation: idleBob 3s ease-in-out infinite;
-  filter: drop-shadow(0 12px 16px rgba(0, 0, 0, 0.18));
-  user-select: none;
+  filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.15));
   object-fit: contain;
 }
 
@@ -434,39 +513,37 @@ body {
     transform: translateY(0);
   }
   50% {
-    transform: translateY(-10px);
+    transform: translateY(-5px);
   }
 }
 
-/* Card badges */
-.student-level-tag {
-  position: absolute;
-  top: 14px;
-  left: 14px;
-  background: #1e1b4b;
-  color: #fef08a;
-  font-size: 0.8rem;
-  font-weight: 900;
-  padding: 4px 10px;
-  border-radius: var(--radius-full);
-  box-shadow: 0 3px 8px rgba(0,0,0,0.2);
-  z-index: 5;
+.companion-graphic {
+  z-index: 2;
+  font-size: 5rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: idleBob 3s ease-in-out infinite;
+  filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.15));
+  user-select: none;
+  object-fit: contain;
 }
 
 /* Overflow Menu (•••) */
 .student-overflow-btn {
   position: absolute;
-  top: 12px;
-  right: 12px;
+  top: 10px;
+  right: 10px;
   background: rgba(255, 255, 255, 0.9);
-  border: 2px solid #cbd5e1;
+  border: 1.5px solid #cbd5e1;
   border-radius: 50%;
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.1rem;
+  font-size: 1rem;
   color: #475569;
   cursor: pointer;
   z-index: 10;
@@ -481,12 +558,12 @@ body {
 
 .overflow-dropdown {
   position: absolute;
-  top: 50px;
-  right: 12px;
+  top: 46px;
+  right: 10px;
   background: white;
-  border: 2px solid #cbd5e1;
+  border: 1.5px solid #cbd5e1;
   border-radius: 14px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
   display: none;
   flex-direction: column;
   padding: 6px;
@@ -516,9 +593,9 @@ body {
   color: var(--indigo);
 }
 
-/* BOTTOM 42% INFO & PRIMARY ACTION */
+/* BOTTOM 45% INFO & PRIMARY ACTION */
 .student-info-plate {
-  padding: 16px 20px 18px;
+  padding: 14px 18px 16px;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -526,19 +603,80 @@ body {
   background: #ffffff;
 }
 
-.student-name-box h4 {
-  font-size: 1.15rem;
-  font-weight: 900;
-  color: var(--primary);
+.student-name-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+
+/* Bold high-contrast student typography */
+.student-name {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.01em;
+  margin: 0;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Chunky tactile game badge for XP */
+.student-xp-badge,
+.student-xp-pill {
+  background: #fef3c7;
+  border: 1.5px solid #f59e0b;
+  color: #b45309;
+  font-weight: 800;
+  border-radius: 9999px;
+  padding: 2.5px 9px;
+  font-size: 0.8rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 0 1px 2px rgba(245, 158, 11, 0.15);
+  white-space: nowrap;
 }
 
 .student-companion-name {
-  font-size: 0.85rem;
+  font-size: 0.84rem;
   font-weight: 700;
-  color: #40916c;
+  color: #059669;
 }
 
-/* Single Primary Action: +10 XP Button */
+/* 3D Tactile XP Action Button */
+.btn-xp-3d {
+  background: #10b981;
+  color: #ffffff;
+  font-weight: 800;
+  border: none;
+  border-bottom: 4px solid #047857;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.08s ease, border-bottom-width 0.08s ease;
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-sizing: border-box;
+}
+
+.btn-xp-3d:active {
+  transform: translateY(3px);
+  border-bottom-width: 1px;
+}
+
+.btn-xp-3d:hover {
+  background: #059669;
+}
+
+/* Single Primary Action: +10 XP Button Legacy fallback */
 .btn-xp-award {
   width: 100%;
   padding: 12px;
@@ -555,7 +693,7 @@ body {
   pointer-events: none;
   animation: floatUpFade 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   z-index: 100;
-  text-shadow: 0 2px 8px rgba(255,255,255,0.9);
+  text-shadow: 0 2px 8px rgba(255, 255, 255, 0.9);
 }
 
 @keyframes floatUpFade {

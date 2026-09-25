@@ -218,6 +218,10 @@
     const catalog = window.SchoolStore.getAvatarCatalog();
 
     elements.studentGrid.innerHTML = students.map(student => {
+      // Resolve element and stage name
+      const element = (window.SchoolStore.getStudentElement ? window.SchoolStore.getStudentElement(student) : (student.element || 'nature'));
+      const stageName = (window.SchoolStore.getStageTitle ? window.SchoolStore.getStageTitle(student.level) : (student.level <= 2 ? 'Cracking Egg' : student.level === 3 ? 'Baby Monster' : 'Detective Sleuth'));
+
       // Resolve companion items for composite sprite
       const glowItem = catalog.glow.find(g => g.id === student.avatar.glow);
       const backItem = catalog.back.find(b => b.id === student.avatar.back);
@@ -229,8 +233,9 @@
       const isAbsent = student.attendance === 'absent';
 
       return `
-        <article class="student-card ${isAbsent ? 'absent' : ''}" id="card-${student.id}">
-          <span class="student-level-tag">⭐ LVL ${student.level}</span>
+        <article class="student-card element-${element} ${isAbsent ? 'absent' : ''}" id="card-${student.id}">
+          <!-- Small rounded chip level indicator at the top of the card -->
+          <span class="student-level-chip">Lvl ${student.level} • ${stageName}</span>
 
           <!-- Overflow menu (•••) for secondary actions -->
           <button class="student-overflow-btn" onclick="window.appController.toggleOverflow('${student.id}', event)" title="Student Options">•••</button>
@@ -241,12 +246,12 @@
             </button>
           </div>
 
-          <!-- TOP 55%–60% STAGE FOR COMPANION GRAPHIC -->
-          <div class="student-companion-stage" onclick="window.appController.openCustomizer('${student.id}')" style="cursor: pointer;" title="Customize ${student.companionName}">
-            <!-- Isometric glowing pedestal -->
-            <div class="pedestal-disc"></div>
-            <!-- Multi-layer composite companion sprite -->
-            <div class="companion-composite-rig" style="position: relative; width: 100px; height: 100px; animation: idleBob 3s ease-in-out infinite;">
+          <!-- TOP 55% STAGE FOR MONSTER SPRITE / EGG (Rendered at full scale with object-fit: contain) -->
+          <div class="student-companion-stage element-${element}" onclick="window.appController.openCustomizer('${student.id}')" style="cursor: pointer;" title="Customize ${student.companionName}">
+            <!-- Elemental glowing pedestal disc -->
+            <div class="pedestal-disc element-${element}"></div>
+            <!-- Multi-layer composite companion sprite with idle CSS breathing float -->
+            <div class="roster-sprite companion-composite-rig" style="position: relative; width: 115px; height: 115px;">
               ${glowItem && glowItem.svg ? `<div style="position:absolute; inset:0; z-index:0; transform:scale(1.2); opacity:0.85; pointer-events:none;">${glowItem.svg}</div>` : ''}
               ${backItem && backItem.svg ? `<div style="position:absolute; inset:0; z-index:10; pointer-events:none;">${backItem.svg}</div>` : ''}
               <div style="position:absolute; inset:0; z-index:20; pointer-events:none;">${bodyItem.svg || `<div class="companion-graphic">${bodyItem.icon}</div>`}</div>
@@ -257,19 +262,20 @@
             </div>
           </div>
 
-          <!-- BOTTOM 40-45% INFO & SINGLE PRIMARY 3D ACTION -->
+          <!-- BOTTOM 45% INFO & TACTILE 3D ACTION (High contrast typography, no redundant grade subtitles) -->
           <div class="student-info-plate">
             <div class="student-name-box">
-              <h4>${student.name}</h4>
-              <div class="student-companion-name">🐾 ${student.companionName}</div>
-              <div style="font-size: 0.8rem; color: #64748b; font-weight: 700; margin-top: 2px;">
-                Score: <strong style="color: var(--indigo); font-size: 0.95rem;">${student.xp} XP</strong>
-                ${isAbsent ? '<span style="color: #ef4444; margin-left: 6px;">(Absent)</span>' : ''}
+              <div class="student-name-row">
+                <h4 class="student-name">${student.name}</h4>
+                <!-- Chunky tactile game badge for XP -->
+                <span class="student-xp-badge">⭐ ${student.xp} XP</span>
               </div>
+              <div class="student-companion-name">🐾 ${student.companionName}</div>
+              ${isAbsent ? '<div style="font-size: 0.72rem; color: #ef4444; font-weight: 800; margin-top: 2px;">(Absent)</div>' : ''}
             </div>
 
             <!-- Single Prominent 3D Button: +10 XP -->
-            <button class="btn-3d btn-3d-emerald btn-xp-award" onclick="window.appController.awardXP('${student.id}', event)">
+            <button type="button" class="btn-xp-3d" onclick="window.appController.awardXP('${student.id}', event)" title="Award +10 XP to ${student.name}">
               <span>⭐ +10 XP</span>
             </button>
           </div>

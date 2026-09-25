@@ -125,6 +125,8 @@
       grade: "4th Grade",
       level: 4,
       xp: 420,
+      element: "thunder",
+      stageName: "Detective Sleuth",
       avatar: {
         glow: "gold",
         back: "cape",
@@ -143,6 +145,8 @@
       grade: "4th Grade",
       level: 3,
       xp: 340,
+      element: "nature",
+      stageName: "Baby Monster",
       avatar: {
         glow: "wetland",
         back: "wings",
@@ -161,6 +165,8 @@
       grade: "4th Grade",
       level: 2,
       xp: 210,
+      element: "astral",
+      stageName: "Cracking Egg",
       avatar: {
         glow: "none",
         back: "none",
@@ -179,6 +185,8 @@
       grade: "4th Grade",
       level: 5,
       xp: 590,
+      element: "fire",
+      stageName: "Apex Guardian",
       avatar: {
         glow: "lightning",
         back: "wings",
@@ -197,6 +205,8 @@
       grade: "4th Grade",
       level: 3,
       xp: 310,
+      element: "nature",
+      stageName: "Baby Monster",
       avatar: {
         glow: "gold",
         back: "none",
@@ -215,6 +225,8 @@
       grade: "4th Grade",
       level: 4,
       xp: 450,
+      element: "astral",
+      stageName: "Detective Sleuth",
       avatar: {
         glow: "wetland",
         back: "cape",
@@ -514,12 +526,37 @@
   const ROSTER_STORAGE_KEY = 'eaa_cadet_roster_v2';
   const ACTIVE_USER_KEY = 'eaa_active_student_avatar_v2';
 
+  function getStageTitle(level) {
+    if (level <= 1) return 'Cracking Egg';
+    if (level === 2) return 'Cracking Egg';
+    if (level === 3) return 'Baby Monster';
+    if (level === 4) return 'Detective Sleuth';
+    return 'Apex Guardian';
+  }
+
+  function getStudentElement(student) {
+    if (student.element) return student.element;
+    if (student.id === 'std-1') return 'thunder';
+    if (student.id === 'std-2') return 'nature';
+    if (student.id === 'std-3') return 'astral';
+    if (student.id === 'std-4') return 'fire';
+    if (student.id === 'std-5') return 'nature';
+    if (student.id === 'std-6') return 'astral';
+    return 'nature';
+  }
+
   function getStoredStudents() {
+    let list = null;
     try {
       const saved = localStorage.getItem(ROSTER_STORAGE_KEY);
-      if (saved) return JSON.parse(saved);
+      if (saved) list = JSON.parse(saved);
     } catch(e) {}
-    return JSON.parse(JSON.stringify(DEFAULT_STUDENTS));
+    if (!list) list = JSON.parse(JSON.stringify(DEFAULT_STUDENTS));
+    return list.map(s => {
+      if (!s.element) s.element = getStudentElement(s);
+      if (!s.stageName) s.stageName = getStageTitle(s.level);
+      return s;
+    });
   }
 
   function saveStudents(students) {
@@ -668,6 +705,14 @@
     // Avatar Wardrobe Catalog & Stacking
     getAvatarCatalog: function() {
       return JSON.parse(JSON.stringify(AVATAR_CATALOG));
+    },
+
+    getStageTitle: function(level) {
+      return getStageTitle(level);
+    },
+
+    getStudentElement: function(student) {
+      return getStudentElement(student);
     },
 
     getActiveUserAvatar: function() {
