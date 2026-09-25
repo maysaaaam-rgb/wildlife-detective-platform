@@ -803,12 +803,76 @@
         saveStudents(students);
       }
       return avatar;
+    },
+
+    recalculateAllStudents: function() {
+      return recalculateAllStudents();
     }
   };
+
+  function recalculateAllStudents() {
+    if (typeof localStorage === 'undefined') return [];
+    const storageKeys = ['adventure_students', 'students', 'aa_roster_grade_4b', 'aa_roster_grade_4a', ROSTER_STORAGE_KEY];
+    
+    storageKeys.forEach(key => {
+      const raw = localStorage.getItem(key);
+      if (!raw) return;
+      try {
+        const list = JSON.parse(raw);
+        if (Array.isArray(list)) {
+          const updated = list.map(student => {
+            const evalStage = getStageFromXP(student.xp);
+            student.level = evalStage.level;
+            student.levelName = evalStage.levelName;
+            student.stageName = evalStage.levelName;
+            student.isEgg = evalStage.isEgg;
+            student.progressPct = evalStage.progressPct;
+            student.remainingXP = evalStage.xpToNext;
+            student.xpToNext = evalStage.xpToNext;
+            return student;
+          });
+          localStorage.setItem(key, JSON.stringify(updated));
+        }
+      } catch (e) {
+        console.error("Migration error on " + key, e);
+      }
+    });
+
+    // Also update in-memory active store
+    if (typeof window !== 'undefined' && window.AdventureAcademy?.students) {
+      window.AdventureAcademy.students.forEach(s => {
+        Object.assign(s, getStageFromXP(s.xp));
+      });
+    }
+
+    if (typeof window !== 'undefined' && window.schoolStore?.state?.students) {
+      window.schoolStore.state.students.forEach(s => {
+        const evalStage = getStageFromXP(s.xp);
+        s.level = evalStage.level;
+        s.levelName = evalStage.levelName;
+        s.stageName = evalStage.levelName;
+        s.isEgg = evalStage.isEgg;
+        s.progressPct = evalStage.progressPct;
+        s.remainingXP = evalStage.xpToNext;
+        s.xpToNext = evalStage.xpToNext;
+      });
+    }
+
+    return getStoredStudents();
+  }
+
+  if (typeof localStorage !== 'undefined') {
+    recalculateAllStudents();
+  }
 
   root.SchoolStore = SchoolStore;
   root.getStageFromXP = getStageFromXP;
   root.EVOLUTION_TIERS = EVOLUTION_TIERS;
+  root.recalculateAllStudents = recalculateAllStudents;
+
+  if (typeof window !== 'undefined') {
+    window.recalculateAllStudents = recalculateAllStudents;
+  }
 
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = SchoolStore;
