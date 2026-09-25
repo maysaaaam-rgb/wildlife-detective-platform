@@ -20,6 +20,10 @@
   let soundEnabled = true;
 
   function initAudio() {
+    if (window.academyAudio) {
+      window.academyAudio.init();
+      return;
+    }
     if (!audioCtx && (window.AudioContext || window.webkitAudioContext)) {
       audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     }
@@ -30,49 +34,77 @@
 
   function playHarmonicChime(type = 'xp') {
     if (!soundEnabled) return;
+    if (window.academyAudio && !window.academyAudio.enabled) return;
+
+    // Use global zero-dependency Web Audio synthesizer instance if present
+    if (window.academyAudio) {
+      if (type === 'xp') {
+        window.academyAudio.playCoin();
+        return;
+      }
+      if (type === 'levelUp') {
+        window.academyAudio.playFanfare();
+        return;
+      }
+      if (type === 'whoosh' || type === 'modal') {
+        window.academyAudio.playWhoosh();
+        return;
+      }
+      if (type === 'snap' || type === 'click' || type === 'equip') {
+        window.academyAudio.playSnap();
+        return;
+      }
+      if (type === 'bell') {
+        window.academyAudio.playTimerAlarm();
+        return;
+      }
+    }
+
     initAudio();
     if (!audioCtx) return;
 
     const t = audioCtx.currentTime;
 
     if (type === 'xp') {
-      // Dyad chime: Pure sine fundamental (523.25 Hz C5) + overtone fifth (783.99 Hz G5)
-      const osc1 = audioCtx.createOscillator();
-      const osc2 = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-
-      osc1.type = 'sine';
-      osc1.frequency.setValueAtTime(523.25, t);
-      osc1.frequency.exponentialRampToValueAtTime(659.25, t + 0.18);
-
-      osc2.type = 'triangle';
-      osc2.frequency.setValueAtTime(783.99, t);
-      osc2.frequency.exponentialRampToValueAtTime(1046.50, t + 0.18);
-
-      gain.gain.setValueAtTime(0.25, t);
-      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
-
-      osc1.connect(gain);
-      osc2.connect(gain);
-      gain.connect(audioCtx.destination);
-
-      osc1.start(t);
-      osc2.start(t);
-      osc1.stop(t + 0.35);
-      osc2.stop(t + 0.35);
-    } else if (type === 'equip') {
-      // Crisp equip pop
+      // Dual-tone positive coin chime: 987.77 Hz (B5) -> 1318.51 Hz (E6)
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(330, t);
-      osc.frequency.exponentialRampToValueAtTime(880, t + 0.12);
-      gain.gain.setValueAtTime(0.2, t);
-      gain.gain.exponentialRampToValueAtTime(0.01, t + 0.2);
+      osc.frequency.setValueAtTime(987.77, t);
+      osc.frequency.setValueAtTime(1318.51, t + 0.08);
+      gain.gain.setValueAtTime(0.22, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
       osc.connect(gain);
       gain.connect(audioCtx.destination);
       osc.start(t);
-      osc.stop(t + 0.2);
+      osc.stop(t + 0.35);
+    } else if (type === 'equip' || type === 'snap') {
+      // Mechanical micro-click for active button presses
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(1800, t);
+      osc.frequency.exponentialRampToValueAtTime(120, t + 0.03);
+      gain.gain.setValueAtTime(0.12, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.035);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(t);
+      osc.stop(t + 0.035);
+    } else if (type === 'whoosh' || type === 'modal') {
+      // Modal opening whoosh chord
+      [220, 277.18, 329.63].forEach(freq => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, t);
+        gain.gain.setValueAtTime(0.18, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.38);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(t);
+        osc.stop(t + 0.38);
+      });
     } else if (type === 'levelUp') {
       // Level-Up C-Major Fanfare (C5 -> E5 -> G5 -> C6)
       [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
@@ -190,6 +222,14 @@
     setupBottomDock();
     renderClassroomGrid();
     renderGallery();
+
+    // Tactile elastic micro-click feedback on active button and dock icon presses
+    document.addEventListener('pointerdown', (e) => {
+      const btn = e.target.closest('button, .btn-3d, .btn-xp-3d, .dock-action-btn, .dock-btn, .filter-btn, .overflow-item, a.btn-3d');
+      if (btn) {
+        playHarmonicChime('snap');
+      }
+    });
   }
 
   /* =========================================================================
@@ -361,6 +401,7 @@
 
     if (elements.avatarModal) {
       elements.avatarModal.classList.add('open');
+      playHarmonicChime('whoosh');
     }
   }
 
@@ -592,9 +633,12 @@
     if (elements.dockSoundBtn) {
       elements.dockSoundBtn.addEventListener('click', () => {
         soundEnabled = !soundEnabled;
+        if (window.academyAudio) {
+          window.academyAudio.enabled = soundEnabled;
+        }
         elements.dockSoundBtn.innerHTML = soundEnabled ? '<span>🔊</span> Sound ON' : '<span>🔇</span> Muted';
         elements.dockSoundBtn.classList.toggle('active', soundEnabled);
-        if (soundEnabled) playHarmonicChime('equip');
+        if (soundEnabled) playHarmonicChime('xp');
       });
     }
 
@@ -796,6 +840,7 @@
 
     elements.modalBody.innerHTML = html;
     elements.lessonModal.classList.add('open');
+    playHarmonicChime('whoosh');
   }
 
   function closeLessonPlanModal() {
