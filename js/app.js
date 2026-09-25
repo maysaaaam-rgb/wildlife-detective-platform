@@ -264,11 +264,16 @@
         : (window.getStageFromXP ? window.getStageFromXP(student.xp) : { level: 1, levelName: 'Level 1 • Mystery Egg', spriteType: 'egg' });
 
       const element = (window.SchoolStore.getStudentElement ? window.SchoolStore.getStudentElement(student) : (student.element || 'nature'));
+      const archetype = (window.SchoolStore && window.SchoolStore.getStudentArchetype)
+        ? window.SchoolStore.getStudentArchetype(student)
+        : (window.getStudentArchetype ? window.getStudentArchetype(student) : 'ignis');
+      const archetypeClass = `archetype-${archetype}`;
 
       // Resolve companion items for composite sprite
       const glowItem = catalog.glow.find(g => g.id === student.avatar.glow);
       const backItem = catalog.back.find(b => b.id === student.avatar.back);
-      const bodyItem = catalog.body.find(b => b.id === student.avatar.body) || catalog.body[0];
+      const bodyChoice = (student.avatar && student.avatar.body) || archetype;
+      const bodyItem = catalog.body.find(b => b.id === bodyChoice) || catalog.body.find(b => b.id === archetype) || catalog.body[0];
       const torsoItem = catalog.torso.find(t => t.id === student.avatar.torso);
       const faceItem = catalog.face.find(f => f.id === student.avatar.face);
       const eyewearItem = catalog.eyewear.find(e => e.id === student.avatar.eyewear);
@@ -276,9 +281,10 @@
       const isAbsent = student.attendance === 'absent';
 
       return `
-        <article class="student-card element-${element} ${isAbsent ? 'absent' : ''}" id="card-${student.id}">
+        <article class="student-card element-${element} ${archetypeClass} ${isAbsent ? 'absent' : ''}" id="card-${student.id}" data-archetype="${archetype}">
           <!-- Small rounded chip level indicator at the top of the card -->
           <span class="student-level-chip">${stage.levelName}</span>
+          <span class="student-archetype-chip ${archetypeClass}" title="Species Archetype: ${archetype.toUpperCase()}">${archetype.toUpperCase()}</span>
 
           <!-- Overflow menu (•••) for secondary actions -->
           <button class="student-overflow-btn" onclick="window.appController.toggleOverflow('${student.id}', event)" title="Student Options">•••</button>
@@ -290,9 +296,9 @@
           </div>
 
           <!-- TOP 55% STAGE FOR MONSTER SPRITE / EGG (Rendered at full scale with object-fit: contain) -->
-          <div class="student-companion-stage element-${element}" onclick="window.appController.openCustomizer('${student.id}')" style="cursor: pointer;" title="Customize ${student.companionName}">
+          <div class="student-companion-stage element-${element} ${archetypeClass}" onclick="window.appController.openCustomizer('${student.id}')" style="cursor: pointer;" title="Customize ${student.companionName}">
             <!-- Elemental glowing pedestal disc -->
-            <div class="pedestal-disc element-${element}"></div>
+            <div class="pedestal-disc element-${element} ${archetypeClass}"></div>
             <!-- Multi-layer composite companion sprite with idle CSS breathing float -->
             <div class="roster-sprite companion-composite-rig" style="position: relative; width: 115px; height: 115px;">
               ${glowItem && glowItem.svg ? `<div style="position:absolute; inset:0; z-index:0; transform:scale(1.2); opacity:0.85; pointer-events:none;">${glowItem.svg}</div>` : ''}

@@ -46,6 +46,24 @@
     return EVOLUTION_TIERS[0];
   }
 
+  // =========================================================================
+  // 4 DISTINCT SPECIES ARCHETYPES (SINGLE SOURCE OF TRUTH)
+  // 1. Ignis (Dragon/Flame): Pointed horns, dragon snout, warm ember underglow (#f97316)
+  // 2. Flora (Fox/Forest): Fluffy fox ears, leaf tail, emerald nature glow (#10b981)
+  // 3. Volt (Pikachu/Electric): Lightning-bolt ears, cheek pouches, electric amber glow (#eab308)
+  // 4. Astral (Owl/Cosmic): Feathered crest, star eyes, violet celestial glow (#8b5cf6)
+  // =========================================================================
+  const SPECIES_ARCHETYPES = ["ignis", "flora", "volt", "astral"];
+
+  function getStudentArchetype(student) {
+    if (!student) return SPECIES_ARCHETYPES[0];
+    const s = (typeof student === 'object') ? student : { id: String(student) };
+    if (s.archetype) return s.archetype;
+    // Deterministic assignment based on student ID / name
+    const code = (s.id || s.name || "").split("").reduce((acc, c) => acc + c.charCodeAt(0), 0);
+    return SPECIES_ARCHETYPES[code % SPECIES_ARCHETYPES.length];
+  }
+
   function getBadgeRarityTier(xp) {
     const numXP = Number(xp) || 0;
     if (numXP >= 400) {
@@ -413,6 +431,8 @@
   const GamificationMilestones = {
     EVOLUTION_TIERS,
     getStageFromXP,
+    SPECIES_ARCHETYPES,
+    getStudentArchetype,
     recalculateAllStudents,
     renderEvolutionJourney,
     renderBadgeTradingCard,
@@ -422,12 +442,16 @@
 
   root.EVOLUTION_TIERS = EVOLUTION_TIERS;
   root.getStageFromXP = getStageFromXP;
+  root.SPECIES_ARCHETYPES = SPECIES_ARCHETYPES;
+  root.getStudentArchetype = getStudentArchetype;
   root.recalculateAllStudents = recalculateAllStudents;
 
   if (typeof window !== 'undefined') {
     window.GamificationMilestones = GamificationMilestones;
     window.EVOLUTION_TIERS = EVOLUTION_TIERS;
     window.getStageFromXP = getStageFromXP;
+    window.SPECIES_ARCHETYPES = SPECIES_ARCHETYPES;
+    window.getStudentArchetype = getStudentArchetype;
     window.recalculateAllStudents = recalculateAllStudents;
     window.triggerEvolutionCeremony = triggerEvolutionCeremony;
   }

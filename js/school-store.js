@@ -518,6 +518,38 @@
         visual: "🦊", 
         unlockLevel: 3,
         svg: `<svg viewBox="0 0 200 200" width="100%" height="100%"><ellipse cx="100" cy="118" rx="52" ry="50" fill="#ea580c" stroke="#9a3412" stroke-width="4"/><polygon points="62,70 50,42 78,54" fill="#ea580c" stroke="#9a3412" stroke-width="3"/><polygon points="138,70 150,42 122,54" fill="#ea580c" stroke="#9a3412" stroke-width="3"/><ellipse cx="100" cy="130" rx="30" ry="26" fill="#fff7ed"/><ellipse cx="68" cy="164" rx="12" ry="8" fill="#431407"/><ellipse cx="132" cy="164" rx="12" ry="8" fill="#431407"/></svg>`
+      },
+      { 
+        id: "ignis", 
+        name: "Ignis (Flame Dragon)", 
+        icon: "🔥", 
+        visual: "🐉", 
+        unlockLevel: 1,
+        svg: `<svg viewBox="0 0 200 200" width="100%" height="100%"><ellipse cx="100" cy="118" rx="55" ry="50" fill="#f97316" stroke="#c2410c" stroke-width="4"/><ellipse cx="100" cy="126" rx="35" ry="32" fill="#ffedd5" opacity="0.6"/><ellipse cx="68" cy="164" rx="14" ry="9" fill="#ea580c" stroke="#c2410c" stroke-width="3"/><ellipse cx="132" cy="164" rx="14" ry="9" fill="#ea580c" stroke="#c2410c" stroke-width="3"/><path d="M 72 74 Q 48 36 34 44 Q 56 62 70 82 Z" fill="#ea580c" stroke="#c2410c" stroke-width="3"/><path d="M 128 74 Q 152 36 166 44 Q 144 62 130 82 Z" fill="#ea580c" stroke="#c2410c" stroke-width="3"/></svg>`
+      },
+      { 
+        id: "flora", 
+        name: "Flora (Forest Fox)", 
+        icon: "🌿", 
+        visual: "🦊", 
+        unlockLevel: 1,
+        svg: `<svg viewBox="0 0 200 200" width="100%" height="100%"><ellipse cx="100" cy="118" rx="54" ry="50" fill="#10b981" stroke="#047857" stroke-width="4"/><polygon points="62,70 50,38 78,52" fill="#10b981" stroke="#047857" stroke-width="3"/><polygon points="138,70 150,38 122,52" fill="#10b981" stroke="#047857" stroke-width="3"/><ellipse cx="100" cy="128" rx="32" ry="28" fill="#ecfdf5"/><ellipse cx="68" cy="164" rx="13" ry="9" fill="#047857"/><ellipse cx="132" cy="164" rx="13" ry="9" fill="#047857"/></svg>`
+      },
+      { 
+        id: "volt", 
+        name: "Volt (Electric Spark)", 
+        icon: "⚡", 
+        visual: "⚡", 
+        unlockLevel: 1,
+        svg: `<svg viewBox="0 0 200 200" width="100%" height="100%"><ellipse cx="100" cy="118" rx="55" ry="50" fill="#eab308" stroke="#ca8a04" stroke-width="4"/><polygon points="60,76 34,44 58,48 46,20 80,60" fill="#eab308" stroke="#ca8a04" stroke-width="2.5"/><polygon points="140,76 166,44 142,48 154,20 120,60" fill="#eab308" stroke="#ca8a04" stroke-width="2.5"/><ellipse cx="100" cy="126" rx="34" ry="30" fill="#fef9c3"/><circle cx="68" cy="120" r="9" fill="#ef4444" opacity="0.85"/><circle cx="132" cy="120" r="9" fill="#ef4444" opacity="0.85"/><ellipse cx="68" cy="164" rx="14" ry="9" fill="#ca8a04"/><ellipse cx="132" cy="164" rx="14" ry="9" fill="#ca8a04"/></svg>`
+      },
+      { 
+        id: "astral", 
+        name: "Astral (Cosmic Owl)", 
+        icon: "✨", 
+        visual: "🦉", 
+        unlockLevel: 1,
+        svg: `<svg viewBox="0 0 200 200" width="100%" height="100%"><ellipse cx="100" cy="118" rx="54" ry="50" fill="#8b5cf6" stroke="#6d28d9" stroke-width="4"/><ellipse cx="100" cy="126" rx="32" ry="30" fill="#ede9fe"/><ellipse cx="68" cy="164" rx="13" ry="8" fill="#6d28d9"/><ellipse cx="132" cy="164" rx="13" ry="8" fill="#6d28d9"/><polygon points="100,108 92,120 108,120" fill="#fbbf24"/><path d="M 68 76 Q 44 54 36 70 Q 56 76 68 84" fill="#a78bfa"/><path d="M 132 76 Q 156 54 164 70 Q 144 76 132 84" fill="#a78bfa"/></svg>`
       }
     ]
   };
@@ -570,14 +602,31 @@
     return tier ? tier.name : 'Level 1 • Mystery Egg';
   }
 
+  // =========================================================================
+  // 4 DISTINCT SPECIES ARCHETYPES (SINGLE SOURCE OF TRUTH)
+  // 1. Ignis (Dragon/Flame): Pointed horns, dragon snout, warm ember underglow (#f97316)
+  // 2. Flora (Fox/Forest): Fluffy fox ears, leaf tail, emerald nature glow (#10b981)
+  // 3. Volt (Pikachu/Electric): Lightning-bolt ears, cheek pouches, electric amber glow (#eab308)
+  // 4. Astral (Owl/Cosmic): Feathered crest, star eyes, violet celestial glow (#8b5cf6)
+  // =========================================================================
+  const SPECIES_ARCHETYPES = ["ignis", "flora", "volt", "astral"];
+
+  function getStudentArchetype(student) {
+    if (!student) return SPECIES_ARCHETYPES[0];
+    const s = (typeof student === 'object') ? student : { id: String(student) };
+    if (s.archetype) return s.archetype;
+    // Deterministic assignment based on student ID / name
+    const code = (s.id || s.name || "").split("").reduce((acc, c) => acc + c.charCodeAt(0), 0);
+    return SPECIES_ARCHETYPES[code % SPECIES_ARCHETYPES.length];
+  }
+
   function getStudentElement(student) {
     if (student.element) return student.element;
-    if (student.id === 'std-1') return 'thunder';
-    if (student.id === 'std-2') return 'nature';
-    if (student.id === 'std-3') return 'astral';
-    if (student.id === 'std-4') return 'fire';
-    if (student.id === 'std-5') return 'nature';
-    if (student.id === 'std-6') return 'astral';
+    const arch = getStudentArchetype(student);
+    if (arch === 'ignis') return 'fire';
+    if (arch === 'flora') return 'nature';
+    if (arch === 'volt') return 'thunder';
+    if (arch === 'astral') return 'astral';
     return 'nature';
   }
 
@@ -599,6 +648,7 @@
       s.isEgg = stage.isEgg;
       s.progressPct = stage.progressPct;
       s.xpToNext = stage.xpToNext;
+      s.archetype = getStudentArchetype(s);
       if (!s.element) s.element = getStudentElement(s);
       return s;
     });
@@ -805,6 +855,12 @@
       return avatar;
     },
 
+    getStudentArchetype: function(student) {
+      return getStudentArchetype(student);
+    },
+
+    SPECIES_ARCHETYPES: SPECIES_ARCHETYPES,
+
     recalculateAllStudents: function() {
       return recalculateAllStudents();
     }
@@ -829,6 +885,7 @@
             student.progressPct = evalStage.progressPct;
             student.remainingXP = evalStage.xpToNext;
             student.xpToNext = evalStage.xpToNext;
+            student.archetype = getStudentArchetype(student);
             return student;
           });
           localStorage.setItem(key, JSON.stringify(updated));
@@ -842,6 +899,7 @@
     if (typeof window !== 'undefined' && window.AdventureAcademy?.students) {
       window.AdventureAcademy.students.forEach(s => {
         Object.assign(s, getStageFromXP(s.xp));
+        s.archetype = getStudentArchetype(s);
       });
     }
 
@@ -855,6 +913,7 @@
         s.progressPct = evalStage.progressPct;
         s.remainingXP = evalStage.xpToNext;
         s.xpToNext = evalStage.xpToNext;
+        s.archetype = getStudentArchetype(s);
       });
     }
 
@@ -868,10 +927,14 @@
   root.SchoolStore = SchoolStore;
   root.getStageFromXP = getStageFromXP;
   root.EVOLUTION_TIERS = EVOLUTION_TIERS;
+  root.SPECIES_ARCHETYPES = SPECIES_ARCHETYPES;
+  root.getStudentArchetype = getStudentArchetype;
   root.recalculateAllStudents = recalculateAllStudents;
 
   if (typeof window !== 'undefined') {
     window.recalculateAllStudents = recalculateAllStudents;
+    window.SPECIES_ARCHETYPES = SPECIES_ARCHETYPES;
+    window.getStudentArchetype = getStudentArchetype;
   }
 
   if (typeof module !== 'undefined' && module.exports) {
