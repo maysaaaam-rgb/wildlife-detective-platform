@@ -174,6 +174,9 @@
     elements.wardrobeTabs = document.getElementById('wardrobe-tabs');
     elements.wardrobeItems = document.getElementById('wardrobe-items-grid');
     elements.customizerLevelTag = document.getElementById('customizer-level-tag');
+    elements.equippedSpecsList = document.getElementById('equipped-specs-list');
+    elements.btnSaveMonster = document.getElementById('btn-save-monster');
+    elements.btnCancelCustomizer = document.getElementById('btn-cancel-customizer');
 
     // Bottom dock controls
     elements.dockSoundBtn = document.getElementById('dock-sound-btn');
@@ -215,8 +218,13 @@
     const catalog = window.SchoolStore.getAvatarCatalog();
 
     elements.studentGrid.innerHTML = students.map(student => {
-      // Resolve companion base icon
+      // Resolve companion items for composite sprite
+      const glowItem = catalog.glow.find(g => g.id === student.avatar.glow);
+      const backItem = catalog.back.find(b => b.id === student.avatar.back);
       const bodyItem = catalog.body.find(b => b.id === student.avatar.body) || catalog.body[0];
+      const torsoItem = catalog.torso.find(t => t.id === student.avatar.torso);
+      const faceItem = catalog.face.find(f => f.id === student.avatar.face);
+      const eyewearItem = catalog.eyewear.find(e => e.id === student.avatar.eyewear);
       const headItem = catalog.headwear.find(h => h.id === student.avatar.headwear);
       const isAbsent = student.attendance === 'absent';
 
@@ -227,25 +235,26 @@
           <!-- Overflow menu (•••) for secondary actions -->
           <button class="student-overflow-btn" onclick="window.appController.toggleOverflow('${student.id}', event)" title="Student Options">•••</button>
           <div class="overflow-dropdown" id="dropdown-${student.id}">
-            <button class="overflow-item" onclick="window.appController.openCustomizer('${student.id}')">🦫 Edit Wardrobe</button>
+            <button class="overflow-item" onclick="window.appController.openCustomizer('${student.id}')">🎨 Monster Studio</button>
             <button class="overflow-item" onclick="window.appController.toggleStudentAttendance('${student.id}')">
               ${isAbsent ? '✅ Mark Present' : '❌ Mark Absent'}
             </button>
           </div>
 
           <!-- TOP 55%–60% STAGE FOR COMPANION GRAPHIC -->
-          <div class="student-companion-stage">
+          <div class="student-companion-stage" onclick="window.appController.openCustomizer('${student.id}')" style="cursor: pointer;" title="Customize ${student.companionName}">
             <!-- Isometric glowing pedestal -->
             <div class="pedestal-disc"></div>
-            <!-- Companion with idleBob floating physics -->
-            <div class="companion-graphic" title="${student.companionName}">
-              ${bodyItem.icon}
+            <!-- Multi-layer composite companion sprite -->
+            <div class="companion-composite-rig" style="position: relative; width: 100px; height: 100px; animation: idleBob 3s ease-in-out infinite;">
+              ${glowItem && glowItem.svg ? `<div style="position:absolute; inset:0; z-index:0; transform:scale(1.2); opacity:0.85; pointer-events:none;">${glowItem.svg}</div>` : ''}
+              ${backItem && backItem.svg ? `<div style="position:absolute; inset:0; z-index:10; pointer-events:none;">${backItem.svg}</div>` : ''}
+              <div style="position:absolute; inset:0; z-index:20; pointer-events:none;">${bodyItem.svg || `<div class="companion-graphic">${bodyItem.icon}</div>`}</div>
+              ${torsoItem && torsoItem.svg ? `<div style="position:absolute; inset:0; z-index:30; pointer-events:none;">${torsoItem.svg}</div>` : ''}
+              ${faceItem && faceItem.svg ? `<div style="position:absolute; inset:0; z-index:40; pointer-events:none;">${faceItem.svg}</div>` : ''}
+              ${eyewearItem && eyewearItem.svg ? `<div style="position:absolute; inset:0; z-index:50; pointer-events:none;">${eyewearItem.svg}</div>` : ''}
+              ${headItem && headItem.svg ? `<div style="position:absolute; inset:0; z-index:60; pointer-events:none;">${headItem.svg}</div>` : ''}
             </div>
-            ${headItem && headItem.visual ? `
-              <div style="position: absolute; top: 22%; font-size: 2.4rem; z-index: 3; animation: idleBob 3s ease-in-out infinite;">
-                ${headItem.visual}
-              </div>
-            ` : ''}
           </div>
 
           <!-- BOTTOM 40-45% INFO & SINGLE PRIMARY 3D ACTION -->
@@ -326,11 +335,14 @@
      - Locked items: pointer-events: none, opacity 0.45, lock indicator
      ========================================================================= */
   let activeCustomizerStudent = null;
+  let draftAvatar = {};
 
   function openCustomizerModal(studentId = 'std-1') {
     const students = window.SchoolStore.getStudents();
-    activeCustomizerStudent = students.find(s => s.id === studentId) || students[0];
+    activeCustomizerStudent = (window.SchoolStore.getStudent && window.SchoolStore.getStudent(studentId)) || students.find(s => s.id === studentId) || students[0];
     if (!activeCustomizerStudent) return;
+
+    draftAvatar = { ...activeCustomizerStudent.avatar };
 
     if (elements.customizerLevelTag) {
       elements.customizerLevelTag.innerText = `⭐ ${activeCustomizerStudent.name} (LVL ${activeCustomizerStudent.level})`;
@@ -339,6 +351,7 @@
     renderCompositeLayers();
     renderWardrobeTabs();
     renderWardrobeItems(activeWardrobeSlot);
+    renderEquippedSpecsSidebar();
 
     if (elements.avatarModal) {
       elements.avatarModal.classList.add('open');
@@ -347,53 +360,75 @@
 
   function renderCompositeLayers() {
     if (!activeCustomizerStudent) return;
-    const av = activeCustomizerStudent.avatar;
     const catalog = window.SchoolStore.getAvatarCatalog();
 
-    // z-0: Glow
-    const glowItem = catalog.glow.find(g => g.id === av.glow);
-    elements.layerGlow.innerHTML = glowItem && glowItem.visual 
-      ? `<span class="layer-glow-content">${glowItem.visual}</span>` : '';
+    // Layer 0 (z-index 0): Ambient Aura / Glow
+    const glowItem = catalog.glow.find(g => g.id === draftAvatar.glow) || catalog.glow[0];
+    if (elements.layerGlow) {
+      elements.layerGlow.innerHTML = (glowItem && glowItem.id !== 'none')
+        ? (glowItem.svg || `<span class="layer-glow-content">${glowItem.visual || glowItem.icon}</span>`)
+        : '';
+    }
 
-    // z-10: Back Gear
-    const backItem = catalog.back.find(b => b.id === av.back);
-    elements.layerBack.innerHTML = backItem && backItem.visual 
-      ? `<span class="layer-back-content">${backItem.visual}</span>` : '';
+    // Layer 1 (z-index 10): Back Gear (Wings, Tails behind body)
+    const backItem = catalog.back.find(b => b.id === draftAvatar.back) || catalog.back[0];
+    if (elements.layerBack) {
+      elements.layerBack.innerHTML = (backItem && backItem.id !== 'none')
+        ? (backItem.svg || `<span class="layer-back-content">${backItem.visual || backItem.icon}</span>`)
+        : '';
+    }
 
-    // z-20: Base Body Sprite
-    const bodyItem = catalog.body.find(b => b.id === av.body) || catalog.body[0];
-    elements.layerBody.innerHTML = `<span class="layer-body-content">${bodyItem.icon}</span>`;
+    // Layer 2 (z-index 20): Base Body Sprite (Paws, Head, Torso)
+    const bodyItem = catalog.body.find(b => b.id === draftAvatar.body) || catalog.body[0];
+    if (elements.layerBody) {
+      elements.layerBody.innerHTML = bodyItem
+        ? (bodyItem.svg || `<span class="layer-body-content">${bodyItem.icon}</span>`)
+        : '';
+    }
 
-    // z-30: Torso Clothing
-    const torsoItem = catalog.torso.find(t => t.id === av.torso);
-    elements.layerTorso.innerHTML = torsoItem && torsoItem.visual 
-      ? `<span class="layer-torso-content">${torsoItem.visual}</span>` : '';
+    // Layer 3 (z-index 30): Outfits & Clothing (Vests, Explorer Jackets)
+    const torsoItem = catalog.torso.find(t => t.id === draftAvatar.torso) || catalog.torso[0];
+    if (elements.layerTorso) {
+      elements.layerTorso.innerHTML = (torsoItem && torsoItem.id !== 'none')
+        ? (torsoItem.svg || `<span class="layer-torso-content">${torsoItem.visual || torsoItem.icon}</span>`)
+        : '';
+    }
 
-    // z-40: Facial Features
-    const faceItem = catalog.face.find(f => f.id === av.face);
-    elements.layerFace.innerHTML = faceItem && faceItem.visual 
-      ? `<span class="layer-face-content">${faceItem.visual}</span>` : '';
+    // Layer 4 (z-index 40): Facial Expressions (Eyes, Mouth)
+    const faceItem = catalog.face.find(f => f.id === draftAvatar.face) || catalog.face[0];
+    if (elements.layerFace) {
+      elements.layerFace.innerHTML = (faceItem && faceItem.id !== 'none')
+        ? (faceItem.svg || `<span class="layer-face-content">${faceItem.visual || faceItem.icon}</span>`)
+        : '';
+    }
 
-    // z-50: Eyewear
-    const eyeItem = catalog.eyewear.find(e => e.id === av.eyewear);
-    elements.layerEyewear.innerHTML = eyeItem && eyeItem.visual 
-      ? `<span class="layer-eyewear-content">${eyeItem.visual}</span>` : '';
+    // Layer 5 (z-index 50): Eyewear (Glasses, Goggles)
+    const eyeItem = catalog.eyewear.find(e => e.id === draftAvatar.eyewear) || catalog.eyewear[0];
+    if (elements.layerEyewear) {
+      elements.layerEyewear.innerHTML = (eyeItem && eyeItem.id !== 'none')
+        ? (eyeItem.svg || `<span class="layer-eyewear-content">${eyeItem.visual || eyeItem.icon}</span>`)
+        : '';
+    }
 
-    // z-60: Horns & Headwear
-    const headItem = catalog.headwear.find(h => h.id === av.headwear);
-    elements.layerHeadwear.innerHTML = headItem && headItem.visual 
-      ? `<span class="layer-headwear-content">${headItem.visual}</span>` : '';
+    // Layer 6 (z-index 60): Headwear & Crests (Hats, Horns)
+    const headItem = catalog.headwear.find(h => h.id === draftAvatar.headwear) || catalog.headwear[0];
+    if (elements.layerHeadwear) {
+      elements.layerHeadwear.innerHTML = (headItem && headItem.id !== 'none')
+        ? (headItem.svg || `<span class="layer-headwear-content">${headItem.visual || headItem.icon}</span>`)
+        : '';
+    }
   }
 
   function renderWardrobeTabs() {
     if (!elements.wardrobeTabs) return;
     const slots = [
-      { id: 'headwear', label: '🎩 Headwear (z-60)' },
-      { id: 'eyewear', label: '👓 Eyewear (z-50)' },
-      { id: 'torso', label: '🧥 Torso (z-30)' },
-      { id: 'back', label: '🪽 Back Gear (z-10)' },
-      { id: 'glow', label: '✨ Aura (z-0)' },
-      { id: 'body', label: '🐾 Body (z-20)' }
+      { id: 'headwear', label: '🎩 Headwear & Crests (Layer 6)' },
+      { id: 'eyewear',  label: '👓 Eyewear (Layer 5)' },
+      { id: 'torso',    label: '🦺 Outfits & Vests (Layer 3)' },
+      { id: 'face',     label: '😄 Facial Expressions (Layer 4)' },
+      { id: 'back',     label: '🪽 Back Gear & Tails (Layer 1)' },
+      { id: 'glow',     label: '✨ Ambient Aura (Layer 0)' },
+      { id: 'body',     label: '🐾 Base Body (Layer 2)' }
     ];
 
     elements.wardrobeTabs.innerHTML = slots.map(s => `
@@ -408,7 +443,7 @@
     if (!elements.wardrobeItems || !activeCustomizerStudent) return;
     const catalog = window.SchoolStore.getAvatarCatalog();
     const items = catalog[slot] || [];
-    const currentEquipped = activeCustomizerStudent.avatar[slot];
+    const currentEquipped = draftAvatar[slot];
     const studentLevel = activeCustomizerStudent.level;
 
     elements.wardrobeItems.innerHTML = items.map(item => {
@@ -418,8 +453,11 @@
 
       return `
         <div class="wardrobe-item-card ${isEquipped ? 'equipped' : ''} ${isLocked ? 'locked' : ''}" 
-             onclick="window.appController.equipItem('${slot}', '${item.id}')">
+             ${isLocked ? 'style="pointer-events: none !important; opacity: 0.45 !important; filter: grayscale(0.8) !important; cursor: not-allowed !important;"' : ''}
+             onclick="window.appController.equipItem('${slot}', '${item.id}')"
+             title="${item.name}${isLocked ? ` (Requires Level ${item.unlockLevel})` : ''}">
           ${isLocked ? `<span class="wardrobe-lock-tag">🔒 LVL ${item.unlockLevel}</span>` : ''}
+          ${isEquipped ? `<span style="position: absolute; top: 4px; left: 4px; background: #10b981; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 0.7rem; display: flex; align-items: center; justify-content: center; font-weight: 800;">✓</span>` : ''}
           <div class="item-icon">${item.icon}</div>
           <div class="item-label">${item.name}</div>
         </div>
@@ -433,18 +471,98 @@
     const item = (catalog[slot] || []).find(i => i.id === itemId);
     if (!item) return;
 
-    // Enforce Level Gating (Rule #2)
+    // Strict Level Lock Enforcement
     if (item.unlockLevel > activeCustomizerStudent.level) {
-      alert(`🔒 Item locked! Requires Level ${item.unlockLevel}. Earn XP to unlock!`);
+      console.warn("Item is level locked:", item.name);
       return;
     }
 
-    // Immediate Layer Stage Update
-    activeCustomizerStudent.avatar[slot] = itemId;
+    // Dynamic Layer Attachment: Mount corresponding SVG directly into respective layer container
+    draftAvatar[slot] = itemId;
     playHarmonicChime('equip');
-    renderCompositeLayers();
+
+    const layerTargetMap = {
+      glow: elements.layerGlow,
+      back: elements.layerBack,
+      body: elements.layerBody,
+      torso: elements.layerTorso,
+      face: elements.layerFace,
+      eyewear: elements.layerEyewear,
+      headwear: elements.layerHeadwear
+    };
+
+    const targetEl = layerTargetMap[slot];
+    if (targetEl) {
+      if (item.id === 'none') {
+        targetEl.innerHTML = '';
+      } else if (item.svg) {
+        targetEl.innerHTML = item.svg;
+      } else if (item.visual || item.icon) {
+        targetEl.innerHTML = `<span class="layer-${slot}-content">${item.visual || item.icon}</span>`;
+      }
+    }
+
+    // Keep EQUIPPED FEATURES sidebar synced with active items
+    renderEquippedSpecsSidebar();
     renderWardrobeItems(slot);
+  }
+
+  function renderEquippedSpecsSidebar() {
+    if (!elements.equippedSpecsList || !activeCustomizerStudent) return;
+    const catalog = window.SchoolStore.getAvatarCatalog();
+
+    const layerDefs = [
+      { slot: 'headwear', tag: 'L6', z: 'z-60', label: 'Headwear' },
+      { slot: 'eyewear',  tag: 'L5', z: 'z-50', label: 'Eyewear' },
+      { slot: 'face',     tag: 'L4', z: 'z-40', label: 'Face' },
+      { slot: 'torso',    tag: 'L3', z: 'z-30', label: 'Clothing' },
+      { slot: 'body',     tag: 'L2', z: 'z-20', label: 'Body' },
+      { slot: 'back',     tag: 'L1', z: 'z-10', label: 'Back Gear' },
+      { slot: 'glow',     tag: 'L0', z: 'z-0',  label: 'Aura' }
+    ];
+
+    elements.equippedSpecsList.innerHTML = layerDefs.map(def => {
+      const equippedId = draftAvatar[def.slot];
+      const items = catalog[def.slot] || [];
+      const item = items.find(i => i.id === equippedId) || { id: 'none', name: 'None', icon: '✖️' };
+      const isNone = item.id === 'none';
+
+      return `
+        <div class="spec-feature-row">
+          <div class="spec-feature-left">
+            <span class="spec-layer-tag">${def.tag} ${def.z}</span>
+            <span style="font-size: 1.1rem;">${item.icon || '✨'}</span>
+            <div style="min-width: 0;">
+              <div class="spec-item-name">${item.name}</div>
+              <div style="font-size: 0.68rem; color: #64748b;">${def.label}</div>
+            </div>
+          </div>
+          ${def.slot !== 'body' && !isNone ? `
+            <button type="button" class="btn-sm-secondary" style="padding: 2px 7px; font-size: 0.72rem; border-radius: 6px; cursor: pointer;" 
+                    onclick="window.appController.equipItem('${def.slot}', 'none')" title="Unequip">✕</button>
+          ` : ''}
+        </div>
+      `;
+    }).join('');
+  }
+
+  function handleSaveMonster() {
+    if (!activeCustomizerStudent) return;
+
+    // Persist to SchoolStore and localStorage
+    if (window.SchoolStore.saveStudentAvatar) {
+      window.SchoolStore.saveStudentAvatar(activeCustomizerStudent.id, draftAvatar);
+    }
+    activeCustomizerStudent.avatar = { ...draftAvatar };
+
+    // Immediately update selected student's card sprite on disk & screen
     renderClassroomGrid();
+
+    // Harmonic celebration chime & notification
+    playHarmonicChime('levelUp');
+    alert(`✓ Monster successfully saved for ${activeCustomizerStudent.name}!`);
+
+    closeCustomizerModal();
   }
 
   function handleSwitchWardrobeTab(slot) {
@@ -561,6 +679,14 @@
       elements.avatarModal.addEventListener('click', (e) => {
         if (e.target === elements.avatarModal) closeCustomizerModal();
       });
+    }
+
+    if (elements.btnSaveMonster) {
+      elements.btnSaveMonster.addEventListener('click', handleSaveMonster);
+    }
+
+    if (elements.btnCancelCustomizer) {
+      elements.btnCancelCustomizer.addEventListener('click', closeCustomizerModal);
     }
 
     document.addEventListener('click', () => {
@@ -787,6 +913,7 @@
     openCustomizer: openCustomizerModal,
     closeCustomizer: closeCustomizerModal,
     equipItem: handleEquipItem,
+    saveMonster: handleSaveMonster,
     switchWardrobeTab: handleSwitchWardrobeTab,
     startTimer: startClassTimer
   };

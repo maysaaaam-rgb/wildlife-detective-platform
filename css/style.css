@@ -853,7 +853,7 @@ body {
 .avatar-modal-dialog {
   background: #ffffff;
   width: 100%;
-  max-width: 900px;
+  max-width: 1040px;
   border-radius: 28px;
   border: 4px solid var(--primary);
   border-bottom: 8px solid #0f172a;
@@ -865,14 +865,22 @@ body {
 
 .customizer-layout {
   display: grid;
-  grid-template-columns: 320px 1fr;
-  min-height: 480px;
+  grid-template-columns: 310px 1fr 250px;
+  min-height: 520px;
+}
+
+@media (max-width: 960px) {
+  .customizer-layout {
+    grid-template-columns: 1fr;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
 }
 
 /* STAGE VIEWPORT */
 .customizer-viewport-box {
   background: radial-gradient(circle at 50% 40%, #ffffff 0%, #e0f2fe 60%, #bae6fd 100%);
-  padding: 30px;
+  padding: 24px 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -882,10 +890,10 @@ body {
 }
 
 .avatar-composite-stage {
-  width: 240px;
-  height: 240px;
+  width: 220px;
+  height: 220px;
   position: relative;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
   border-radius: 50%;
   background: radial-gradient(circle at 50% 50%, #ffffff 0%, #ecfdf5 60%, #b7e4c7 100%);
   border: 6px solid #52b788;
@@ -894,6 +902,7 @@ body {
   align-items: center;
   justify-content: center;
   overflow: visible;
+  animation: idleBob 3s ease-in-out infinite;
 }
 
 /* STRICT Z-INDEX STACKING */
@@ -910,13 +919,20 @@ body {
   transition: all 0.2s var(--spring-bounce);
 }
 
+.composite-layer svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+}
+
 .layer-glow     { z-index: 0; }  /* z-0: Ambient Glow / Aura */
-.layer-back     { z-index: 10; } /* z-10: Back Gear (Capes, Wings) */
+.layer-back     { z-index: 10; } /* z-10: Back Gear (Capes, Wings, Tails) */
 .layer-body     { z-index: 20; } /* z-20: Base Body Sprite & Paws */
-.layer-torso    { z-index: 30; } /* z-30: Torso Clothing & Vests */
-.layer-face     { z-index: 40; } /* z-40: Facial Features */
-.layer-eyewear  { z-index: 50; } /* z-50: Eyewear */
-.layer-headwear { z-index: 60; } /* z-60: Horns & Headwear */
+.layer-torso    { z-index: 30; } /* z-30: Outfits & Clothing (Vests, Explorer Jackets) */
+.layer-face     { z-index: 40; } /* z-40: Facial Expressions (Eyes, Mouth) */
+.layer-eyewear  { z-index: 50; } /* z-50: Eyewear (Glasses, Goggles) */
+.layer-headwear { z-index: 60; } /* z-60: Headwear & Crests (Hats, Horns) */
 
 .layer-glow-content { font-size: 8rem; opacity: 0.7; filter: blur(6px); animation: pulseGlow 2.5s infinite alternate; }
 .layer-back-content { font-size: 6.5rem; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.2)); }
@@ -926,6 +942,18 @@ body {
 .layer-eyewear-content { font-size: 4rem; transform: translateY(-16px); }
 .layer-headwear-content { font-size: 4.8rem; transform: translateY(-46px); }
 
+/* Glowing Isometric Pedestal Disk */
+.pedestal-disc {
+  width: 140px;
+  height: 24px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(56, 189, 248, 0.6) 0%, rgba(16, 185, 129, 0.25) 50%, transparent 75%);
+  margin-top: -6px;
+  margin-bottom: 4px;
+  animation: pulseGlow 2.5s infinite alternate;
+  z-index: 1;
+}
+
 @keyframes pulseGlow {
   0% { transform: scale(0.95); opacity: 0.5; }
   100% { transform: scale(1.1); opacity: 0.85; }
@@ -933,13 +961,13 @@ body {
 
 /* WARDROBE DRAWER & ITEMS */
 .customizer-drawer {
-  padding: 24px 28px;
+  padding: 20px 24px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
   background: #ffffff;
   overflow-y: auto;
-  max-height: 520px;
+  max-height: 540px;
 }
 
 .wardrobe-tabs {
@@ -1025,6 +1053,90 @@ body {
 
 .item-icon { font-size: 2.2rem; }
 .item-label { font-size: 0.78rem; font-weight: 800; color: #334155; text-align: center; }
+
+/* EQUIPPED FEATURES SIDEBAR SPECS PANE */
+.specs-pane {
+  background: #f8fafc;
+  border-left: 2px solid #e2e8f0;
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  max-height: 540px;
+  overflow-y: auto;
+}
+
+.specs-list-header {
+  font-size: 0.76rem;
+  font-weight: 800;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 12px;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.specs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.spec-feature-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 7px 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  transition: all 0.15s ease;
+}
+
+.spec-feature-row:hover {
+  border-color: #38bdf8;
+  background: #f0f9ff;
+}
+
+.spec-feature-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.spec-layer-tag {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #0284c7;
+  background: rgba(56,189,248,0.15);
+  padding: 2px 6px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.spec-item-name {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #1e293b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.specs-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid #e2e8f0;
+}
 
 /* ==========================================================================
    DIRECTIVE 4: CONSOLIDATED BOTTOM DOCK

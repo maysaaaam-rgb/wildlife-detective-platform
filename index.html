@@ -159,50 +159,81 @@
   <div id="avatar-customizer-modal" class="modal-backdrop">
     <div class="avatar-modal-dialog">
       <header class="modal-header">
-        <h3 class="modal-title">🦫 Companion Dressing Room & Wardrobe</h3>
-        <button id="avatar-modal-close-btn" class="modal-close-btn" title="Close Wardrobe">✕</button>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 1.8rem;">🎨</span>
+          <div>
+            <h3 class="modal-title" style="margin: 0; font-size: 1.35rem; font-weight: 800;">Monster Studio &amp; Customizer</h3>
+            <p style="margin: 2px 0 0 0; font-size: 0.8rem; color: #64748b; font-weight: 600;">Customize your evolving learning companion with unlocked skins, horns, wings, hats, clothing &amp; auras</p>
+          </div>
+        </div>
+        <button id="avatar-modal-close-btn" class="modal-close-btn" title="Close Customizer">✕</button>
       </header>
 
       <div class="customizer-layout">
-        <!-- Viewport Box: Multi-layer composite stage -->
+        <!-- Center-Left: Multi-Layer Composite Viewport Stage -->
         <div class="customizer-viewport-box">
-          <span id="customizer-level-tag" class="student-level-tag" style="position:static; margin-bottom: 12px;">
-            ⭐ Sherlock Capy (LVL 4)
-          </span>
-
-          <!-- Strict Stacking Stage Viewport -->
-          <div class="avatar-composite-stage" id="avatar-viewport">
-            <!-- z-0: Ambient Glow / Aura -->
-            <div id="layer-glow" class="composite-layer layer-glow"></div>
-            <!-- z-10: Back Gear (Capes, Wings) -->
-            <div id="layer-back" class="composite-layer layer-back"></div>
-            <!-- z-20: Base Body Sprite & Paws -->
-            <div id="layer-body" class="composite-layer layer-body"></div>
-            <!-- z-30: Torso Clothing & Vests -->
-            <div id="layer-torso" class="composite-layer layer-torso"></div>
-            <!-- z-40: Facial Features -->
-            <div id="layer-face" class="composite-layer layer-face"></div>
-            <!-- z-50: Eyewear -->
-            <div id="layer-eyewear" class="composite-layer layer-eyewear"></div>
-            <!-- z-60: Horns & Headwear -->
-            <div id="layer-headwear" class="composite-layer layer-headwear"></div>
+          <div style="display:flex; justify-content:space-between; align-items:center; width:100%; margin-bottom:10px;">
+            <span id="customizer-level-tag" class="student-level-tag" style="position:static; margin:0;">
+              ⭐ Sherlock Capy (LVL 4)
+            </span>
+            <span class="live-status-pill" style="font-size: 0.68rem; font-weight: 800; background: rgba(16,185,129,0.15); color: #059669; padding: 3px 8px; border-radius: 999px; border: 1px solid rgba(16,185,129,0.3);">● LIVE RIG</span>
           </div>
 
-          <div style="font-size: 0.85rem; color: #475569; font-weight: 800; text-align: center;">
-            Multi-Layer Composite Viewport (z-0 to z-60)
+          <!-- Strict Stacking Multi-Layer Viewport -->
+          <div class="avatar-composite-stage" id="avatar-viewport">
+            <!-- Layer 0 (z-index 0): Ambient Aura / Glow -->
+            <div id="layer-glow" class="composite-layer layer-glow" style="z-index: 0;"></div>
+            <!-- Layer 1 (z-index 10): Back Gear (Wings, Tails behind body) -->
+            <div id="layer-back" class="composite-layer layer-back" style="z-index: 10;"></div>
+            <!-- Layer 2 (z-index 20): Base Body Sprite (Paws, Head, Torso) -->
+            <div id="layer-body" class="composite-layer layer-body" style="z-index: 20;"></div>
+            <!-- Layer 3 (z-index 30): Outfits & Clothing (Vests, Explorer Jackets) -->
+            <div id="layer-torso" class="composite-layer layer-torso" style="z-index: 30;"></div>
+            <!-- Layer 4 (z-index 40): Facial Expressions (Eyes, Mouth) -->
+            <div id="layer-face" class="composite-layer layer-face" style="z-index: 40;"></div>
+            <!-- Layer 5 (z-index 50): Eyewear (Glasses, Goggles) -->
+            <div id="layer-eyewear" class="composite-layer layer-eyewear" style="z-index: 50;"></div>
+            <!-- Layer 6 (z-index 60): Headwear & Crests (Hats, Horns) -->
+            <div id="layer-headwear" class="composite-layer layer-headwear" style="z-index: 60;"></div>
+          </div>
+
+          <!-- Stage Base: Glowing Isometric Pedestal Disk with Idle Breathing Float -->
+          <div class="pedestal-disc" id="preview-pedestal"></div>
+
+          <div style="font-size: 0.78rem; color: #64748b; font-weight: 800; text-align: center; margin-top: 10px;">
+            Multi-Layer Composite Viewport (Layers 0 – 6)
           </div>
         </div>
 
-        <!-- Wardrobe Drawer -->
+        <!-- Center: Wardrobe / Catalog Drawer -->
         <div class="customizer-drawer">
           <div class="wardrobe-tabs" id="wardrobe-tabs">
-            <!-- Populated dynamically -->
+            <!-- Populated dynamically: Headwear & Crests, Eyewear, Outfits, etc. -->
           </div>
 
           <div class="wardrobe-items-grid" id="wardrobe-items-grid">
             <!-- Populated dynamically with level-gating -->
           </div>
         </div>
+
+        <!-- Right: EQUIPPED FEATURES Sidebar & Save Actions -->
+        <aside class="specs-pane" id="customizer-specs-pane">
+          <div>
+            <div class="specs-list-header">EQUIPPED FEATURES</div>
+            <div class="specs-list" id="equipped-specs-list">
+              <!-- Dynamically populated with active items across Layer 0 - 6 -->
+            </div>
+          </div>
+
+          <div class="specs-actions">
+            <button type="button" id="btn-save-monster" class="btn-3d btn-3d-primary" style="width: 100%; justify-content: center; padding: 12px 16px; font-size: 0.94rem;">
+              ✓ Save Monster
+            </button>
+            <button type="button" id="btn-cancel-customizer" class="btn-3d btn-3d-secondary" style="width: 100%; justify-content: center; padding: 8px 14px; font-size: 0.84rem;">
+              Cancel
+            </button>
+          </div>
+        </aside>
       </div>
     </div>
   </div>
