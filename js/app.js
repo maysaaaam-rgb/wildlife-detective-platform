@@ -258,9 +258,12 @@
     const catalog = window.SchoolStore.getAvatarCatalog();
 
     elements.studentGrid.innerHTML = students.map(student => {
-      // Resolve element and stage name
+      // Resolve dynamic stage strictly from XP (Single Source of Truth)
+      const stage = (window.SchoolStore && window.SchoolStore.getStageFromXP)
+        ? window.SchoolStore.getStageFromXP(student.xp)
+        : (window.getStageFromXP ? window.getStageFromXP(student.xp) : { level: 1, levelName: 'Level 1 • Mystery Egg', spriteType: 'egg' });
+
       const element = (window.SchoolStore.getStudentElement ? window.SchoolStore.getStudentElement(student) : (student.element || 'nature'));
-      const stageName = (window.SchoolStore.getStageTitle ? window.SchoolStore.getStageTitle(student.level) : (student.level <= 2 ? 'Cracking Egg' : student.level === 3 ? 'Baby Monster' : 'Detective Sleuth'));
 
       // Resolve companion items for composite sprite
       const glowItem = catalog.glow.find(g => g.id === student.avatar.glow);
@@ -275,7 +278,7 @@
       return `
         <article class="student-card element-${element} ${isAbsent ? 'absent' : ''}" id="card-${student.id}">
           <!-- Small rounded chip level indicator at the top of the card -->
-          <span class="student-level-chip">Lvl ${student.level} • ${stageName}</span>
+          <span class="student-level-chip">${stage.levelName}</span>
 
           <!-- Overflow menu (•••) for secondary actions -->
           <button class="student-overflow-btn" onclick="window.appController.toggleOverflow('${student.id}', event)" title="Student Options">•••</button>
@@ -325,6 +328,12 @@
   }
 
   function handleAwardXP(studentId, event) {
+    const prevStudent = window.SchoolStore.getStudent(studentId);
+    const prevXP = prevStudent ? Number(prevStudent.xp) || 0 : 0;
+    const prevStage = (window.SchoolStore && window.SchoolStore.getStageFromXP)
+      ? window.SchoolStore.getStageFromXP(prevXP)
+      : (window.getStageFromXP ? window.getStageFromXP(prevXP) : null);
+
     const std = window.SchoolStore.awardStudentXP(studentId, 10);
     if (!std) return;
 
@@ -333,36 +342,32 @@
 
     // Visual floating particle effect
     const btn = event.currentTarget;
-    const rect = btn.getBoundingClientRect();
-    const particle = document.createElement('div');
-    particle.className = 'xp-float-particle';
-    particle.innerText = '+10 XP ⭐';
-    particle.style.left = `${rect.left + rect.width / 2 - 35}px`;
-    particle.style.top = `${rect.top - 10}px`;
-    document.body.appendChild(particle);
-    setTimeout(() => particle.remove(), 900);
+    if (btn) {
+      const rect = btn.getBoundingClientRect();
+      const particle = document.createElement('div');
+      particle.className = 'xp-float-particle';
+      particle.innerText = '+10 XP ⭐';
+      particle.style.left = `${rect.left + rect.width / 2 - 35}px`;
+      particle.style.top = `${rect.top - 10}px`;
+      document.body.appendChild(particle);
+      setTimeout(() => particle.remove(), 900);
+    }
 
-    // Check level up milestone
-    if (std.xp % 100 === 0) {
+    // Check level up milestone dynamically from XP
+    const newStage = (window.SchoolStore && window.SchoolStore.getStageFromXP)
+      ? window.SchoolStore.getStageFromXP(std.xp)
+      : (window.getStageFromXP ? window.getStageFromXP(std.xp) : null);
+
+    if (prevStage && newStage && newStage.level > prevStage.level) {
       if (window.triggerEvolutionCeremony) {
-        const stageMap = {
-          1: { name: 'Mystery Egg', stageKey: 'egg', description: 'A dormant egg pulsing with primal mystery.' },
-          2: { name: 'Cracking Egg', stageKey: 'cracking_egg', description: 'Glowing fissures appear as your companion begins to stir!' },
-          3: { name: 'Baby Monster', stageKey: 'baby', description: 'A lively, curious companion hatched and ready for adventure!' },
-          4: { name: 'Growing Monster', stageKey: 'growing', description: 'Taller, stronger, and radiating confident explorer energy!' },
-          5: { name: 'Adventurer Monster', stageKey: 'adventurer', description: 'Equipped with adventurer gear and ready to explore deep mysteries!' },
-          6: { name: 'Advanced Monster', stageKey: 'advanced', description: 'Majestic companion with sprawling wings and celestial aura!' },
-          7: { name: 'Ultimate Monster', stageKey: 'ultimate', description: 'The legendary sovereign form, master of language and science!' }
-        };
-        const stageInfo = stageMap[std.level] || {
-          name: `Level ${std.level} Companion`,
-          stageKey: std.level >= 6 ? 'ultimate' : (std.level >= 5 ? 'advanced' : (std.level >= 4 ? 'adventurer' : (std.level >= 3 ? 'growing' : (std.level >= 2 ? 'baby' : 'egg')))),
-          description: 'Your companion has grown stronger through dedication and teamwork!'
-        };
-        window.triggerEvolutionCeremony(std, stageInfo);
+        window.triggerEvolutionCeremony(std, {
+          name: newStage.levelName,
+          stageKey: newStage.spriteType,
+          description: `Congratulations! ${std.name}'s companion has advanced to ${newStage.levelName} (${std.xp} XP)!`
+        });
       } else {
         playHarmonicChime('levelUp');
-        alert(`🎉 Level Up! ${std.name} has advanced to Level ${std.level}! New wardrobe items unlocked!`);
+        alert(`🎉 Level Up! ${std.name} has advanced to ${newStage.levelName}!`);
       }
     }
 

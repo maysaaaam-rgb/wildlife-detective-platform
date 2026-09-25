@@ -526,12 +526,48 @@
   const ROSTER_STORAGE_KEY = 'eaa_cadet_roster_v2';
   const ACTIVE_USER_KEY = 'eaa_active_student_avatar_v2';
 
-  function getStageTitle(level) {
-    if (level <= 1) return 'Cracking Egg';
-    if (level === 2) return 'Cracking Egg';
-    if (level === 3) return 'Baby Monster';
-    if (level === 4) return 'Detective Sleuth';
-    return 'Apex Guardian';
+  // =========================================================================
+  // MONSTER EVOLUTION TIERS & XP DYNAMIC SYNCHRONIZATION (SINGLE SOURCE OF TRUTH)
+  // =========================================================================
+  const EVOLUTION_TIERS = [
+    { level: 1, name: "Level 1 • Mystery Egg", minXP: 0, maxXP: 29, isEgg: true, spriteType: "egg" },
+    { level: 2, name: "Level 2 • Cracking Egg", minXP: 30, maxXP: 199, isEgg: true, spriteType: "cracking_egg" },
+    { level: 3, name: "Level 3 • Baby Monster", minXP: 200, maxXP: 499, isEgg: false, spriteType: "baby" },
+    { level: 4, name: "Level 4 • Growing Monster", minXP: 500, maxXP: 999, isEgg: false, spriteType: "growing" },
+    { level: 5, name: "Level 5 • Adventurer Monster", minXP: 1000, maxXP: 1999, isEgg: false, spriteType: "adventurer" },
+    { level: 6, name: "Level 6 • Advanced Monster", minXP: 2000, maxXP: 4999, isEgg: false, spriteType: "advanced" },
+    { level: 7, name: "Level 7 • Ultimate Monster", minXP: 5000, maxXP: Infinity, isEgg: false, spriteType: "ultimate" }
+  ];
+
+  function getStageFromXP(rawXP) {
+    const xp = Math.max(0, Number(rawXP) || 0);
+    for (let i = EVOLUTION_TIERS.length - 1; i >= 0; i--) {
+      if (xp >= EVOLUTION_TIERS[i].minXP) {
+        const tier = EVOLUTION_TIERS[i];
+        const nextThreshold = tier.maxXP === Infinity ? tier.minXP : tier.maxXP + 1;
+        const progressInTier = tier.maxXP === Infinity 
+          ? 100 
+          : Math.min(100, Math.round(((xp - tier.minXP) / (nextThreshold - tier.minXP)) * 100));
+        return {
+          level: tier.level,
+          levelName: tier.name,
+          isEgg: tier.isEgg,
+          spriteType: tier.spriteType,
+          progressPct: progressInTier,
+          xpToNext: tier.maxXP === Infinity ? 0 : (nextThreshold - xp)
+        };
+      }
+    }
+    return EVOLUTION_TIERS[0];
+  }
+
+  function getStageTitle(levelOrXP) {
+    if (typeof levelOrXP === 'number' && levelOrXP > 7) {
+      return getStageFromXP(levelOrXP).levelName;
+    }
+    const lvl = Number(levelOrXP) || 1;
+    const tier = EVOLUTION_TIERS.find(t => t.level === lvl);
+    return tier ? tier.name : 'Level 1 • Mystery Egg';
   }
 
   function getStudentElement(student) {
@@ -552,11 +588,26 @@
       if (saved) list = JSON.parse(saved);
     } catch(e) {}
     if (!list) list = JSON.parse(JSON.stringify(DEFAULT_STUDENTS));
-    return list.map(s => {
+    
+    // Dynamic recalculation of every student strictly from XP (Single Source of Truth)
+    const sanitized = list.map(s => {
+      const stage = getStageFromXP(s.xp);
+      s.level = stage.level;
+      s.stageName = stage.levelName;
+      s.levelName = stage.levelName;
+      s.stageKey = stage.spriteType;
+      s.isEgg = stage.isEgg;
+      s.progressPct = stage.progressPct;
+      s.xpToNext = stage.xpToNext;
       if (!s.element) s.element = getStudentElement(s);
-      if (!s.stageName) s.stageName = getStageTitle(s.level);
       return s;
     });
+
+    try {
+      localStorage.setItem(ROSTER_STORAGE_KEY, JSON.stringify(sanitized));
+    } catch(e) {}
+
+    return sanitized;
   }
 
   function saveStudents(students) {
@@ -685,9 +736,15 @@
       const std = students.find(s => s.id === studentId);
       if (!std) return null;
 
-      std.xp += points;
-      // Level progression: 100 XP per level
-      std.level = Math.floor(std.xp / 100) + 1;
+      std.xp = Math.max(0, (std.xp || 0) + Number(points));
+      const stage = getStageFromXP(std.xp);
+      std.level = stage.level;
+      std.stageName = stage.levelName;
+      std.levelName = stage.levelName;
+      std.stageKey = stage.spriteType;
+      std.isEgg = stage.isEgg;
+      std.progressPct = stage.progressPct;
+      std.xpToNext = stage.xpToNext;
       saveStudents(students);
       return std;
     },
@@ -710,6 +767,12 @@
     getStageTitle: function(level) {
       return getStageTitle(level);
     },
+
+    getStageFromXP: function(rawXP) {
+      return getStageFromXP(rawXP);
+    },
+
+    EVOLUTION_TIERS: EVOLUTION_TIERS,
 
     getStudentElement: function(student) {
       return getStudentElement(student);
@@ -744,6 +807,9 @@
   };
 
   root.SchoolStore = SchoolStore;
+  root.getStageFromXP = getStageFromXP;
+  root.EVOLUTION_TIERS = EVOLUTION_TIERS;
+
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = SchoolStore;
   }
