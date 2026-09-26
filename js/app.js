@@ -1112,84 +1112,144 @@
   /* =========================================================================
      XP AUDIT LEDGER MODAL CONTROLLER
      ========================================================================= */
+  let currentActiveHistoryStudentId = null;
+  let currentLedgerFilter = 'all';
+
+  function renderLedgerTimelineFeed(studentId, filterType = 'all') {
+    const s = window.SchoolStore.getStudent(studentId);
+    if (!s) return '<div style="padding:24px; text-align:center; color:#94a3b8;">No student found.</div>';
+
+    let txs = window.SchoolStore.getStudentXPHistory(studentId);
+
+    if (filterType === 'homework') {
+      txs = txs.filter(t => t.type === 'homework');
+    } else if (filterType === 'quiz') {
+      txs = txs.filter(t => t.type === 'quiz');
+    } else if (filterType === 'live') {
+      txs = txs.filter(t => ['participation', 'behavior', 'badge', 'live'].includes(t.type));
+    }
+
+    if (!txs || txs.length === 0) {
+      return '<div style="padding:32px; text-align:center; color:#94a3b8; font-size:0.86rem; background:#0f172a; border-radius:10px; border:1px solid #1e293b;">No transactions recorded for "' + filterType + '".</div>';
+    }
+
+    const typeIcons = {
+      homework: '📝',
+      quiz: '🧠',
+      participation: '✋',
+      badge: '🎖️',
+      behavior: '⭐'
+    };
+
+    const typePills = {
+      homework: { bg: '#eff6ff', color: '#1d4ed8', border: '#bfdbfe', label: 'HOMEWORK' },
+      quiz: { bg: '#fef3c7', color: '#b45309', border: '#fde68a', label: 'QUIZ' },
+      participation: { bg: '#ecfdf5', color: '#047857', border: '#a7f3d0', label: 'CLASSROOM' },
+      badge: { bg: '#faf5ff', color: '#6d28d9', border: '#ddd6fe', label: 'BADGE' },
+      behavior: { bg: '#fdf2f8', color: '#be185d', border: '#fbcfe8', label: 'BEHAVIOR' }
+    };
+
+    return txs.map(tx => {
+      const isVoided = !!tx.isVoided || tx.status === 'voided';
+      const numAmt = parseInt(tx.amount, 10) || 0;
+      const isPos = numAmt >= 0;
+      const amtColor = isVoided ? '#94a3b8' : (isPos ? '#10b981' : '#ef4444');
+      const amtSign = isPos ? '+' : '';
+      const dateStr = tx.timestamp 
+        ? new Date(tx.timestamp).toLocaleString(undefined, { month:'short', day:'numeric', year:'numeric', hour:'2-digit', minute:'2-digit' }) 
+        : (tx.date || '—');
+      const tType = (tx.type || 'participation').toLowerCase();
+      const icon = tx.icon || typeIcons[tType] || '⭐';
+      const pill = typePills[tType] || typePills.participation;
+      const balanceStr = (tx.balanceAfter !== undefined && tx.balanceAfter !== null) ? (tx.balanceAfter + ' XP') : null;
+
+      return `
+        <div class="xp-timeline-card ${isVoided ? 'is-voided' : ''}" style="display:flex; justify-content:space-between; align-items:center; background:#1e293b; border:1px solid #334155; border-radius:10px; padding:10px 14px; transition:transform 0.18s ease; ${isVoided ? 'opacity:0.45; text-decoration:line-through;' : ''}">
+          <div style="display:flex; align-items:center; gap:12px; min-width:0;">
+            <div style="width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:#0f172a; color:#f8fafc; font-size:1.1rem; border:1px solid #334155; flex-shrink:0;">
+              ${icon}
+            </div>
+            <div style="min-width:0;">
+              <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                <span style="font-size:0.88rem; font-weight:800; color:#f8fafc; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${tx.reason || 'XP transaction'}</span>
+                <span style="font-size:0.68rem; font-weight:800; text-transform:uppercase; padding:2px 6px; border-radius:6px; background:${pill.bg}; color:${pill.color}; border:1px solid ${pill.border};">${pill.label}</span>
+                ${isVoided ? '<span style="font-size:0.68rem; font-weight:800; text-transform:uppercase; padding:2px 6px; border-radius:6px; background:#fee2e2; color:#dc2626; border:1px solid #fca5a5;">VOIDED</span>' : ''}
+              </div>
+              <div style="font-size:0.75rem; color:#94a3b8; margin-top:2px;">
+                <span>${dateStr}</span>
+                ${balanceStr ? `<span style="margin: 0 6px;">•</span><span style="color:#cbd5e1;">Balance: <strong style="color:#f59e0b;">${balanceStr}</strong></span>` : ''}
+              </div>
+            </div>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px; margin-left:12px; flex-shrink:0;">
+            <span style="font-size:1.1rem; font-weight:900; color:${amtColor};">
+              ${amtSign}${numAmt} XP
+            </span>
+            ${!isVoided ? `
+              <button type="button" onclick="window.appController.voidStudentXP('${studentId}', '${tx.id}')" style="padding:3px 8px; border-radius:6px; font-size:0.72rem; font-weight:700; background:#fee2e2; color:#dc2626; border:1px solid #fca5a5; cursor:pointer;" title="Void this transaction">Void</button>
+            ` : `
+              <span style="font-size:0.72rem; color:#94a3b8; font-weight:700;">Voided</span>
+            `}
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function filterLedger(type) {
+    currentLedgerFilter = type;
+    const feed = document.getElementById('xp-history-feed');
+    if (feed && currentActiveHistoryStudentId) {
+      feed.innerHTML = renderLedgerTimelineFeed(currentActiveHistoryStudentId, type);
+    }
+    const container = document.getElementById('student-xp-history-tab');
+    if (container) {
+      const pills = container.querySelectorAll('.filter-pill');
+      pills.forEach(p => {
+        const onclickAttr = p.getAttribute('onclick') || '';
+        if (onclickAttr.includes("'" + type + "'") || onclickAttr.includes('"' + type + '"')) {
+          p.classList.add('active');
+        } else {
+          p.classList.remove('active');
+        }
+      });
+    }
+  }
+
+  window.filterLedger = filterLedger;
+
   function openStudentXPHistory(studentId) {
     const student = window.SchoolStore.getStudent(studentId);
     if (!student) return;
 
+    currentActiveHistoryStudentId = studentId;
+    currentLedgerFilter = 'all';
+
     const modal = document.getElementById('xp-history-modal');
     const titleEl = document.getElementById('xp-history-title');
     const balanceEl = document.getElementById('xp-history-balance');
+    const lifetimeEl = document.getElementById('ledger-lifetime-xp');
     const avatarBadge = document.getElementById('xp-history-avatar-badge');
-    const container = document.getElementById('xp-history-table-container');
+    const feed = document.getElementById('xp-history-feed');
 
     if (titleEl) titleEl.innerText = `${student.name} — XP Ledger`;
     if (balanceEl) balanceEl.innerText = `Active Balance: ${(Number(student.xp) || 0).toLocaleString()} XP`;
+    if (lifetimeEl) lifetimeEl.innerText = `⭐ ${(Number(student.xp) || 0).toLocaleString()} XP`;
     if (avatarBadge) {
       avatarBadge.innerText = student.element === 'fire' ? '🔥' : student.element === 'thunder' ? '⚡' : student.element === 'astral' ? '✨' : '🌿';
     }
 
-    const txs = window.SchoolStore.getStudentXPHistory(studentId);
-    if (container) {
-      if (!txs || txs.length === 0) {
-        container.innerHTML = '<div style="padding: 32px; text-align: center; color: #64748b; font-size: 0.95rem;">No XP ledger transactions recorded yet for this cadet.</div>';
-      } else {
-        const typeBadges = {
-          homework: { label: 'Homework', bg: '#eff6ff', color: '#1d4ed8', border: '#bfdbfe', icon: '📝' },
-          quiz: { label: 'Quiz', bg: '#fef3c7', color: '#b45309', border: '#fde68a', icon: '🧠' },
-          participation: { label: 'Participation', bg: '#ecfdf5', color: '#047857', border: '#a7f3d0', icon: '✋' },
-          badge: { label: 'Badge', bg: '#faf5ff', color: '#6d28d9', border: '#ddd6fe', icon: '🎖️' },
-          behavior: { label: 'Behavior', bg: '#fdf2f8', color: '#be185d', border: '#fbcfe8', icon: '⭐' }
-        };
+    if (feed) {
+      feed.innerHTML = renderLedgerTimelineFeed(studentId, 'all');
+    }
 
-        container.innerHTML = `
-          <div style="overflow-x: auto;">
-            <table style="width: 100%; border-collapse: collapse; font-size: 0.84rem; text-align: left;">
-              <thead>
-                <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0; color: #475569;">
-                  <th style="padding: 10px 12px; font-weight: 800;">Date &amp; Time</th>
-                  <th style="padding: 10px 12px; font-weight: 800;">Type</th>
-                  <th style="padding: 10px 12px; font-weight: 800; text-align: right;">Amount</th>
-                  <th style="padding: 10px 12px; font-weight: 800; text-align: right;">Balance After</th>
-                  <th style="padding: 10px 12px; font-weight: 800;">Reason</th>
-                  <th style="padding: 10px 12px; font-weight: 800; text-align: center;">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${txs.map(tx => {
-                  const isVoided = !!tx.isVoided || tx.status === 'voided';
-                  const isPos = Number(tx.amount) >= 0;
-                  const dateStr = tx.timestamp ? new Date(tx.timestamp).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
-                  const meta = typeBadges[tx.type] || typeBadges.participation;
-                  return `
-                    <tr style="border-bottom: 1px solid #f1f5f9; ${isVoided ? 'opacity: 0.45; text-decoration: line-through;' : ''}">
-                      <td style="padding: 10px 12px; white-space: nowrap; color: #64748b; font-weight: 600;">${dateStr}</td>
-                      <td style="padding: 10px 12px;">
-                        <span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; font-size: 0.74rem; font-weight: 800; background: ${meta.bg}; color: ${meta.color}; border: 1px solid ${meta.border};">
-                          ${meta.icon} ${meta.label}
-                        </span>
-                      </td>
-                      <td style="padding: 10px 12px; text-align: right; font-weight: 900; color: ${isVoided ? '#94a3b8' : (isPos ? '#059669' : '#dc2626')};">
-                        ${isPos ? '+' : ''}${tx.amount} XP
-                      </td>
-                      <td style="padding: 10px 12px; text-align: right; font-weight: 800; color: #0f172a;">
-                        ${tx.balanceAfter !== undefined ? tx.balanceAfter + ' XP' : '—'}
-                      </td>
-                      <td style="padding: 10px 12px; color: #334155; font-weight: 600; max-width: 260px;">${tx.reason || 'Classroom XP Award'}</td>
-                      <td style="padding: 10px 12px; text-align: center;">
-                        ${!isVoided ? `
-                          <button type="button" onclick="window.appController.voidStudentXP('${student.id}', '${tx.id}')" style="padding: 3px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 700; background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; cursor: pointer;" title="Void this transaction">Void</button>
-                        ` : `
-                          <span style="font-size: 0.72rem; color: #94a3b8; font-weight: 700;">Voided</span>
-                        `}
-                      </td>
-                    </tr>
-                  `;
-                }).join('')}
-              </tbody>
-            </table>
-          </div>
-        `;
-      }
+    const container = document.getElementById('student-xp-history-tab');
+    if (container) {
+      const pills = container.querySelectorAll('.filter-pill');
+      pills.forEach((p, idx) => {
+        if (idx === 0) p.classList.add('active');
+        else p.classList.remove('active');
+      });
     }
 
     if (modal) modal.classList.add('open');

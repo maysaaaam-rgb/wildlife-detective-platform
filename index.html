@@ -286,8 +286,25 @@
         </div>
         <button type="button" class="modal-close-btn" onclick="window.appController.closeStudentXPHistory()" title="Close Modal">✕</button>
       </header>
-      <div id="xp-history-table-container">
-        <!-- Rendered dynamically -->
+      <div id="student-xp-history-tab" class="profile-tab-content">
+        <!-- Ledger Summary Bar -->
+        <div style="display:flex; justify-content:space-between; align-items:center; background:#0f172a; padding:12px 18px; border-radius:12px; margin-bottom:14px; border:1px solid #1e293b;">
+          <div>
+            <span style="font-size:0.75rem; color:#94a3b8; text-transform:uppercase;">Lifetime Total</span>
+            <h3 style="margin:0; font-size:1.4rem; color:#f59e0b; font-weight:900;" id="ledger-lifetime-xp">⭐ 290 XP</h3>
+          </div>
+          <div style="display:flex; gap:6px;">
+            <button class="filter-pill active" onclick="filterLedger('all')">All</button>
+            <button class="filter-pill" onclick="filterLedger('homework')">Homework</button>
+            <button class="filter-pill" onclick="filterLedger('quiz')">Quizzes</button>
+            <button class="filter-pill" onclick="filterLedger('live')">Classroom</button>
+          </div>
+        </div>
+
+        <!-- Timeline Feed -->
+        <div class="xp-timeline-list" id="xp-history-feed" style="max-height: 320px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
+          <!-- Rendered dynamically by JavaScript -->
+        </div>
       </div>
     </div>
   </div>
