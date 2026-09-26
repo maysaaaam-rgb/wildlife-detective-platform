@@ -289,7 +289,7 @@
           <!-- Overflow menu (•••) for secondary actions -->
           <button class="student-overflow-btn" onclick="window.appController.toggleOverflow('${student.id}', event)" title="Student Options">•••</button>
           <div class="overflow-dropdown" id="dropdown-${student.id}">
-            <button class="overflow-item" onclick="window.appController.openStudentXPHistory('${student.id}')">📜 View XP Ledger</button>
+            <button class="overflow-item" onclick="window.appController.openStudentProfile('${student.id}')">📜 View Student Profile &amp; XP</button>
             <button class="overflow-item" onclick="window.appController.openCustomizer('${student.id}')">🎨 Monster Studio</button>
             <button class="overflow-item" onclick="window.appController.toggleStudentAttendance('${student.id}')">
               ${isAbsent ? '✅ Mark Present' : '❌ Mark Absent'}
@@ -316,9 +316,9 @@
           <div class="student-info-plate">
             <div class="student-name-box">
               <div class="student-name-row">
-                <h4 class="student-name">${student.name}</h4>
+                <h4 class="student-name" onclick="window.appController.openStudentProfile('${student.id}')" style="cursor:pointer;" title="View Student Profile &amp; XP Ledger">${student.name}</h4>
                 <!-- Chunky tactile game badge for XP -->
-                <span class="student-xp-badge" onclick="window.appController.openStudentXPHistory('${student.id}')" style="cursor:pointer;" title="View XP Ledger">⭐ ${student.xp} XP</span>
+                <span class="student-xp-badge" onclick="window.appController.openStudentProfile('${student.id}')" style="cursor:pointer;" title="View Student Profile &amp; XP Ledger">⭐ ${student.xp} XP</span>
               </div>
               <div class="student-companion-name">🐾 ${student.companionName}</div>
               ${isAbsent ? '<div style="font-size: 0.72rem; color: #ef4444; font-weight: 800; margin-top: 2px;">(Absent)</div>' : ''}
@@ -341,7 +341,9 @@
       ? window.SchoolStore.getStageFromXP(prevXP)
       : (window.getStageFromXP ? window.getStageFromXP(prevXP) : null);
 
-    const std = window.SchoolStore.awardStudentXP(studentId, 10, 'participation', 'Classroom Participation (+10 XP)');
+    const std = (window.SchoolStore && window.SchoolStore.awardXP)
+      ? window.SchoolStore.awardXP({ studentId, amount: 10, type: 'participation', reason: 'Classroom Participation (+10 XP)' })
+      : window.SchoolStore.awardStudentXP(studentId, 10, 'participation', 'Classroom Participation (+10 XP)');
     if (!std) return;
 
     // Acoustic harmonic chime
@@ -1091,7 +1093,11 @@
     const students = window.SchoolStore.getStudents();
     if (students.length > 0) {
       const activeStudent = students[0];
-      window.SchoolStore.awardStudentXP(activeStudent.id, badge.xpReward, 'badge', 'Badge: ' + badge.name);
+      if (window.SchoolStore && window.SchoolStore.awardXP) {
+        window.SchoolStore.awardXP({ studentId: activeStudent.id, amount: badge.xpReward, type: 'badge', reason: 'Badge: ' + badge.name });
+      } else {
+        window.SchoolStore.awardStudentXP(activeStudent.id, badge.xpReward, 'badge', 'Badge: ' + badge.name);
+      }
       setupStats();
       renderClassroomGrid();
     }
@@ -1155,9 +1161,11 @@
       const isPos = numAmt >= 0;
       const amtColor = isVoided ? '#94a3b8' : (isPos ? '#10b981' : '#ef4444');
       const amtSign = isPos ? '+' : '';
-      const dateStr = tx.timestamp 
-        ? new Date(tx.timestamp).toLocaleString(undefined, { month:'short', day:'numeric', year:'numeric', hour:'2-digit', minute:'2-digit' }) 
-        : (tx.date || '—');
+      const dateStr = (tx.date && tx.time)
+        ? `${tx.date} • ${tx.time}`
+        : (tx.timestamp 
+            ? new Date(tx.timestamp).toLocaleString(undefined, { month:'short', day:'numeric', year:'numeric', hour:'2-digit', minute:'2-digit' }) 
+            : (tx.date || '—'));
       const tType = (tx.type || 'participation').toLowerCase();
       const icon = tx.icon || typeIcons[tType] || '⭐';
       const pill = typePills[tType] || typePills.participation;
@@ -1225,14 +1233,14 @@
     currentActiveHistoryStudentId = studentId;
     currentLedgerFilter = 'all';
 
-    const modal = document.getElementById('xp-history-modal');
+    const modal = document.getElementById('student-profile-modal') || document.getElementById('xp-history-modal');
     const titleEl = document.getElementById('xp-history-title');
     const balanceEl = document.getElementById('xp-history-balance');
     const lifetimeEl = document.getElementById('ledger-lifetime-xp');
     const avatarBadge = document.getElementById('xp-history-avatar-badge');
     const feed = document.getElementById('xp-history-feed');
 
-    if (titleEl) titleEl.innerText = `${student.name} — XP Ledger`;
+    if (titleEl) titleEl.innerText = `${student.name} — Student Profile & XP Ledger`;
     if (balanceEl) balanceEl.innerText = `Active Balance: ${(Number(student.xp) || 0).toLocaleString()} XP`;
     if (lifetimeEl) lifetimeEl.innerText = `⭐ ${(Number(student.xp) || 0).toLocaleString()} XP`;
     if (avatarBadge) {
@@ -1257,7 +1265,7 @@
   }
 
   function closeStudentXPHistory() {
-    const modal = document.getElementById('xp-history-modal');
+    const modal = document.getElementById('student-profile-modal') || document.getElementById('xp-history-modal');
     if (modal) modal.classList.remove('open');
     document.body.style.overflow = '';
   }
@@ -1280,6 +1288,10 @@
     awardXP: handleAwardXP,
     openStudentXPHistory: openStudentXPHistory,
     closeStudentXPHistory: closeStudentXPHistory,
+    openStudentProfile: openStudentXPHistory,
+    closeStudentProfile: closeStudentXPHistory,
+    openStudentDetail: openStudentXPHistory,
+    closeStudentDetail: closeStudentXPHistory,
     voidStudentXP: handleVoidStudentXP,
     toggleOverflow: toggleOverflow,
     toggleStudentAttendance: toggleStudentAttendance,
@@ -1294,6 +1306,13 @@
     switchWardrobeTab: handleSwitchWardrobeTab,
     startTimer: startClassTimer
   };
+
+  window.openStudentProfile = openStudentXPHistory;
+  window.closeStudentProfile = closeStudentXPHistory;
+  window.openStudentDetail = openStudentXPHistory;
+  window.closeStudentDetail = closeStudentXPHistory;
+  window.openStudentXPHistory = openStudentXPHistory;
+  window.closeStudentXPHistory = closeStudentXPHistory;
 
   document.addEventListener('DOMContentLoaded', init);
 })();

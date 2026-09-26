@@ -850,7 +850,11 @@
     return 'nature';
   }
 
+  let cachedStudents = null;
+
   function getStoredStudents() {
+    if (cachedStudents) return cachedStudents;
+
     let list = null;
     try {
       const saved = localStorage.getItem(ROSTER_STORAGE_KEY);
@@ -877,21 +881,48 @@
         if (defaultStudent && Array.isArray(defaultStudent.xpHistory) && defaultStudent.xpHistory.length > 0) {
           s.xpHistory = JSON.parse(JSON.stringify(defaultStudent.xpHistory));
         } else if (Number(s.xp) > 0) {
+          const now = new Date();
           s.xpHistory = [{
             id: "tx_" + Date.now() + "_" + (s.id || 'init'),
             amount: Number(s.xp),
             type: "participation",
             reason: "Adventure Academy XP Baseline",
-            timestamp: new Date().toISOString(),
+            date: now.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }),
+            time: now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+            timestamp: now.toISOString(),
             balanceAfter: Number(s.xp)
           }];
         } else {
           s.xpHistory = [];
         }
       }
+
+      // Ensure every entry has date, time, timestamp, and array is newest first
+      if (Array.isArray(s.xpHistory) && s.xpHistory.length > 0) {
+        s.xpHistory.forEach(tx => {
+          if (!tx.date && tx.timestamp) {
+            tx.date = new Date(tx.timestamp).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+          }
+          if (!tx.time && tx.timestamp) {
+            tx.time = new Date(tx.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+          }
+          if (!tx.timestamp) {
+            tx.timestamp = new Date().toISOString();
+          }
+        });
+        const first = s.xpHistory[0];
+        const last = s.xpHistory[s.xpHistory.length - 1];
+        const firstTime = new Date(first.timestamp || first.date || 0).getTime();
+        const lastTime = new Date(last.timestamp || last.date || 0).getTime();
+        if (firstTime < lastTime) {
+          s.xpHistory.reverse();
+        }
+      }
+
       return s;
     });
 
+    cachedStudents = sanitized;
     try {
       localStorage.setItem(ROSTER_STORAGE_KEY, JSON.stringify(sanitized));
     } catch(e) {}
@@ -900,9 +931,71 @@
   }
 
   function saveStudents(students) {
+    if (students) cachedStudents = students;
     try {
-      localStorage.setItem(ROSTER_STORAGE_KEY, JSON.stringify(students));
+      localStorage.setItem(ROSTER_STORAGE_KEY, JSON.stringify(cachedStudents || students));
     } catch(e) {}
+  }
+
+  function getStudentById(studentId) {
+    const students = getStoredStudents();
+    return students.find(s => s.id === studentId || s.name === studentId) || null;
+  }
+
+  function syncAllStudentLevels() {
+    const students = getStoredStudents();
+    students.forEach(s => {
+      const stage = getStageFromXP(s.xp);
+      s.level = stage.level;
+      s.stageName = stage.levelName;
+      s.levelName = stage.levelName;
+      s.stageKey = stage.spriteType;
+      s.isEgg = stage.isEgg;
+      s.progressPct = stage.progressPct;
+      s.xpToNext = stage.xpToNext;
+    });
+    saveStudents(students);
+    if (typeof window !== 'undefined' && window.appController && typeof window.appController.renderClassroomGrid === 'function') {
+      window.appController.renderClassroomGrid();
+    }
+  }
+
+  function awardXP(arg1, amountArg, typeArg, reasonArg) {
+    let studentId, amount, type, reason;
+    if (typeof arg1 === 'object' && arg1 !== null) {
+      studentId = arg1.studentId;
+      amount = arg1.amount;
+      type = arg1.type || "participation";
+      reason = arg1.reason || "Classroom Activity";
+    } else {
+      studentId = arg1;
+      amount = amountArg;
+      type = typeArg || "participation";
+      reason = reasonArg || "Classroom Activity";
+    }
+
+    const student = getStudentById(studentId);
+    if (!student) return null;
+
+    student.xp = (Number(student.xp) || 0) + Number(amount);
+    if (!student.xpHistory) student.xpHistory = [];
+
+    const now = new Date();
+    const entry = {
+      id: "tx_" + Date.now() + "_" + Math.random().toString(36).substr(2, 4),
+      amount: Number(amount),
+      type: type, // "homework" | "quiz" | "participation" | "bonus"
+      reason: reason,
+      date: now.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }),
+      time: now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      timestamp: now.toISOString(),
+      balanceAfter: student.xp
+    };
+
+    student.xpHistory.unshift(entry); // Most recent first
+    saveStudents();
+    if (typeof syncAllStudentLevels === "function") syncAllStudentLevels();
+    return student;
   }
 
   const SchoolStore = {
@@ -1020,59 +1113,17 @@
       return std;
     },
 
+    awardXP: awardXP,
     awardStudentXP: function(studentId, points = 10, type = 'participation', reason = 'Classroom XP Award') {
-      const students = getStoredStudents();
-      const std = students.find(s => s.id === studentId);
-      if (!std) return null;
-
-      // Normalize flexible arguments (e.g. awardStudentXP(id, 50, 'Evolution Ceremony Bonus'))
-      let resolvedType = type;
-      let resolvedReason = reason;
-      const validTypes = ['homework', 'quiz', 'participation', 'badge', 'behavior'];
-      if (typeof type === 'string' && !validTypes.includes(type.toLowerCase()) && (!reason || reason === 'Classroom XP Award')) {
-        resolvedReason = type;
-        const text = type.toLowerCase();
-        if (text.includes('homework') || text.includes('assignment') || text.includes('worksheet')) resolvedType = 'homework';
-        else if (text.includes('quiz') || text.includes('test') || text.includes('assessment')) resolvedType = 'quiz';
-        else if (text.includes('badge') || text.includes('ceremony') || text.includes('bonus') || text.includes('trophy')) resolvedType = 'badge';
-        else if (text.includes('behavior') || text.includes('focus') || text.includes('rule')) resolvedType = 'behavior';
-        else resolvedType = 'participation';
-      } else if (!validTypes.includes(String(resolvedType).toLowerCase())) {
-        resolvedType = 'participation';
-      } else {
-        resolvedType = String(resolvedType).toLowerCase();
-      }
-
-      const numPoints = Number(points) || 0;
-      std.xp = Math.max(0, (std.xp || 0) + numPoints);
-      const stage = getStageFromXP(std.xp);
-      std.level = stage.level;
-      std.stageName = stage.levelName;
-      std.levelName = stage.levelName;
-      std.stageKey = stage.spriteType;
-      std.isEgg = stage.isEgg;
-      std.progressPct = stage.progressPct;
-      std.xpToNext = stage.xpToNext;
-
-      if (!Array.isArray(std.xpHistory)) std.xpHistory = [];
-      const tx = {
-        id: 'tx_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
-        amount: numPoints,
-        type: resolvedType,
-        reason: resolvedReason || (numPoints >= 0 ? 'Classroom XP Award' : 'XP Adjustment'),
-        timestamp: new Date().toISOString(),
-        balanceAfter: std.xp
-      };
-      std.xpHistory.push(tx);
-
-      saveStudents(students);
-      return std;
+      return awardXP({ studentId, amount: points, type, reason });
     },
+    getStudentById: getStudentById,
+    syncAllStudentLevels: syncAllStudentLevels,
 
     getStudentXPHistory: function(studentId) {
-      const students = getStoredStudents();
-      const std = students.find(s => s.id === studentId);
-      return (std && Array.isArray(std.xpHistory)) ? std.xpHistory.slice().reverse() : [];
+      const std = getStudentById(studentId);
+      if (!std || !Array.isArray(std.xpHistory)) return [];
+      return std.xpHistory.slice();
     },
 
     getStudentXPTransactions: function(studentId) {
@@ -1080,8 +1131,7 @@
     },
 
     getStudentTotalXP: function(studentId) {
-      const students = getStoredStudents();
-      const std = students.find(s => s.id === studentId);
+      const std = getStudentById(studentId);
       return std ? (Number(std.xp) || 0) : 0;
     },
 
@@ -1109,6 +1159,7 @@
       std.xpToNext = stage.xpToNext;
 
       saveStudents(students);
+      if (typeof syncAllStudentLevels === 'function') syncAllStudentLevels();
       return true;
     },
 
@@ -1243,11 +1294,17 @@
   root.SPECIES_ARCHETYPES = SPECIES_ARCHETYPES;
   root.getStudentArchetype = getStudentArchetype;
   root.recalculateAllStudents = recalculateAllStudents;
+  root.awardXP = awardXP;
+  root.getStudentById = getStudentById;
+  root.syncAllStudentLevels = syncAllStudentLevels;
 
   if (typeof window !== 'undefined') {
     window.recalculateAllStudents = recalculateAllStudents;
     window.SPECIES_ARCHETYPES = SPECIES_ARCHETYPES;
     window.getStudentArchetype = getStudentArchetype;
+    window.awardXP = awardXP;
+    window.getStudentById = getStudentById;
+    window.syncAllStudentLevels = syncAllStudentLevels;
   }
 
   if (typeof module !== 'undefined' && module.exports) {
