@@ -137,7 +137,49 @@
         headwear: "deerstalker"
       },
       companionName: "Sherlock Capy",
-      attendance: "present"
+      attendance: "present",
+      xpHistory: [
+        {
+          id: "tx_1727001001",
+          amount: 150,
+          type: "homework",
+          reason: "Homework: Exotic Pet Habitat Dossier",
+          timestamp: "2026-09-21T09:00:00Z",
+          balanceAfter: 150
+        },
+        {
+          id: "tx_1727001002",
+          amount: 100,
+          type: "quiz",
+          reason: "Quiz: Axolotl Biology & Needs",
+          timestamp: "2026-09-22T10:30:00Z",
+          balanceAfter: 250
+        },
+        {
+          id: "tx_1727001003",
+          amount: 70,
+          type: "participation",
+          reason: "Participation: TPR Snorkel Face Simulation",
+          timestamp: "2026-09-23T14:15:00Z",
+          balanceAfter: 320
+        },
+        {
+          id: "tx_1727001004",
+          amount: 50,
+          type: "badge",
+          reason: "Badge: Wildlife Detective Sleuth Award",
+          timestamp: "2026-09-24T11:00:00Z",
+          balanceAfter: 370
+        },
+        {
+          id: "tx_1727001005",
+          amount: 50,
+          type: "behavior",
+          reason: "Behavior: Exemplary Team Collaboration",
+          timestamp: "2026-09-25T13:20:00Z",
+          balanceAfter: 420
+        }
+      ]
     },
     {
       id: "std-2",
@@ -157,7 +199,41 @@
         headwear: "helmet"
       },
       companionName: "Aqua Axo",
-      attendance: "present"
+      attendance: "present",
+      xpHistory: [
+        {
+          id: "tx_1727002001",
+          amount: 120,
+          type: "homework",
+          reason: "Homework: Axolotl Cold-Water Tank Design",
+          timestamp: "2026-09-21T09:00:00Z",
+          balanceAfter: 120
+        },
+        {
+          id: "tx_1727002002",
+          amount: 100,
+          type: "quiz",
+          reason: "Quiz: Capybara Teeth & Diet Facts",
+          timestamp: "2026-09-22T10:30:00Z",
+          balanceAfter: 220
+        },
+        {
+          id: "tx_1727002003",
+          amount: 70,
+          type: "participation",
+          reason: "Participation: Active Roleplay & Alibi Verification",
+          timestamp: "2026-09-23T14:15:00Z",
+          balanceAfter: 290
+        },
+        {
+          id: "tx_1727002004",
+          amount: 50,
+          type: "badge",
+          reason: "Badge: Conservation Hero Award",
+          timestamp: "2026-09-25T11:00:00Z",
+          balanceAfter: 340
+        }
+      ]
     },
     {
       id: "std-3",
@@ -177,7 +253,33 @@
         headwear: "wizard"
       },
       companionName: "Professor Hoot",
-      attendance: "present"
+      attendance: "present",
+      xpHistory: [
+        {
+          id: "tx_1727003001",
+          amount: 100,
+          type: "homework",
+          reason: "Homework: Wild vs Captive Comparison Chart",
+          timestamp: "2026-09-21T09:00:00Z",
+          balanceAfter: 100
+        },
+        {
+          id: "tx_1727003002",
+          amount: 60,
+          type: "quiz",
+          reason: "Quiz: Animal Welfare Essentials",
+          timestamp: "2026-09-23T10:30:00Z",
+          balanceAfter: 160
+        },
+        {
+          id: "tx_1727003003",
+          amount: 50,
+          type: "participation",
+          reason: "Participation: Herd Power Action Drill",
+          timestamp: "2026-09-24T14:15:00Z",
+          balanceAfter: 210
+        }
+      ]
     },
     {
       id: "std-4",
@@ -197,7 +299,49 @@
         headwear: "crown"
       },
       companionName: "Champion Vulpix",
-      attendance: "present"
+      attendance: "present",
+      xpHistory: [
+        {
+          id: "tx_1727004001",
+          amount: 200,
+          type: "homework",
+          reason: "Homework: Capybara Adaptation Essay & Poster",
+          timestamp: "2026-09-20T09:00:00Z",
+          balanceAfter: 200
+        },
+        {
+          id: "tx_1727004002",
+          amount: 150,
+          type: "quiz",
+          reason: "Quiz: Master Detective Clue Deduction",
+          timestamp: "2026-09-21T10:30:00Z",
+          balanceAfter: 350
+        },
+        {
+          id: "tx_1727004003",
+          amount: 100,
+          type: "badge",
+          reason: "Badge: Grand Sleuth Trophy Award",
+          timestamp: "2026-09-22T14:00:00Z",
+          balanceAfter: 450
+        },
+        {
+          id: "tx_1727004004",
+          amount: 80,
+          type: "participation",
+          reason: "Participation: Video Evidence Breakdown Lead",
+          timestamp: "2026-09-24T11:15:00Z",
+          balanceAfter: 530
+        },
+        {
+          id: "tx_1727004005",
+          amount: 60,
+          type: "behavior",
+          reason: "Behavior: Outstanding Peer Mentorship",
+          timestamp: "2026-09-25T13:45:00Z",
+          balanceAfter: 590
+        }
+      ]
     },
     {
       id: "std-5",
@@ -217,7 +361,41 @@
         headwear: "helmet"
       },
       companionName: "Pantanal Paws",
-      attendance: "present"
+      attendance: "present",
+      xpHistory: [
+        {
+          id: "tx_1727005001",
+          amount: 110,
+          type: "homework",
+          reason: "Homework: Pantanal Wetland Map & Key",
+          timestamp: "2026-09-21T09:00:00Z",
+          balanceAfter: 110
+        },
+        {
+          id: "tx_1727005002",
+          amount: 90,
+          type: "quiz",
+          reason: "Quiz: Predator & Habitat Matching",
+          timestamp: "2026-09-22T10:30:00Z",
+          balanceAfter: 200
+        },
+        {
+          id: "tx_1727005003",
+          amount: 60,
+          type: "participation",
+          reason: "Participation: Webbed Feet Paddle Drill",
+          timestamp: "2026-09-23T14:15:00Z",
+          balanceAfter: 260
+        },
+        {
+          id: "tx_1727005004",
+          amount: 50,
+          type: "badge",
+          reason: "Badge: Eco Guardian Scout Award",
+          timestamp: "2026-09-24T11:00:00Z",
+          balanceAfter: 310
+        }
+      ]
     },
     {
       id: "std-6",
@@ -237,7 +415,49 @@
         headwear: "deerstalker"
       },
       companionName: "Detective Gills",
-      attendance: "present"
+      attendance: "present",
+      xpHistory: [
+        {
+          id: "tx_1727006001",
+          amount: 150,
+          type: "homework",
+          reason: "Homework: Axolotl Cold-Water Tank Design",
+          timestamp: "2026-09-20T09:00:00Z",
+          balanceAfter: 150
+        },
+        {
+          id: "tx_1727006002",
+          amount: 120,
+          type: "quiz",
+          reason: "Quiz: Mystery Room Chamber Codebreaker",
+          timestamp: "2026-09-22T10:30:00Z",
+          balanceAfter: 270
+        },
+        {
+          id: "tx_1727006003",
+          amount: 80,
+          type: "participation",
+          reason: "Participation: Royal Palace Interrogation Lead",
+          timestamp: "2026-09-23T14:15:00Z",
+          balanceAfter: 350
+        },
+        {
+          id: "tx_1727006004",
+          amount: 50,
+          type: "badge",
+          reason: "Badge: Detective Sleuth Honor Award",
+          timestamp: "2026-09-24T11:00:00Z",
+          balanceAfter: 400
+        },
+        {
+          id: "tx_1727006005",
+          amount: 50,
+          type: "behavior",
+          reason: "Behavior: Consistent Focus & Classroom Help",
+          timestamp: "2026-09-25T13:30:00Z",
+          balanceAfter: 450
+        }
+      ]
     }
   ];
 
@@ -650,6 +870,25 @@
       s.xpToNext = stage.xpToNext;
       s.archetype = getStudentArchetype(s);
       if (!s.element) s.element = getStudentElement(s);
+
+      // Ensure authoritative student.xpHistory ledger exists
+      if (!Array.isArray(s.xpHistory) || s.xpHistory.length === 0) {
+        const defaultStudent = DEFAULT_STUDENTS.find(d => d.id === s.id);
+        if (defaultStudent && Array.isArray(defaultStudent.xpHistory) && defaultStudent.xpHistory.length > 0) {
+          s.xpHistory = JSON.parse(JSON.stringify(defaultStudent.xpHistory));
+        } else if (Number(s.xp) > 0) {
+          s.xpHistory = [{
+            id: "tx_" + Date.now() + "_" + (s.id || 'init'),
+            amount: Number(s.xp),
+            type: "participation",
+            reason: "Adventure Academy XP Baseline",
+            timestamp: new Date().toISOString(),
+            balanceAfter: Number(s.xp)
+          }];
+        } else {
+          s.xpHistory = [];
+        }
+      }
       return s;
     });
 
@@ -781,12 +1020,31 @@
       return std;
     },
 
-    awardStudentXP: function(studentId, points = 10) {
+    awardStudentXP: function(studentId, points = 10, type = 'participation', reason = 'Classroom XP Award') {
       const students = getStoredStudents();
       const std = students.find(s => s.id === studentId);
       if (!std) return null;
 
-      std.xp = Math.max(0, (std.xp || 0) + Number(points));
+      // Normalize flexible arguments (e.g. awardStudentXP(id, 50, 'Evolution Ceremony Bonus'))
+      let resolvedType = type;
+      let resolvedReason = reason;
+      const validTypes = ['homework', 'quiz', 'participation', 'badge', 'behavior'];
+      if (typeof type === 'string' && !validTypes.includes(type.toLowerCase()) && (!reason || reason === 'Classroom XP Award')) {
+        resolvedReason = type;
+        const text = type.toLowerCase();
+        if (text.includes('homework') || text.includes('assignment') || text.includes('worksheet')) resolvedType = 'homework';
+        else if (text.includes('quiz') || text.includes('test') || text.includes('assessment')) resolvedType = 'quiz';
+        else if (text.includes('badge') || text.includes('ceremony') || text.includes('bonus') || text.includes('trophy')) resolvedType = 'badge';
+        else if (text.includes('behavior') || text.includes('focus') || text.includes('rule')) resolvedType = 'behavior';
+        else resolvedType = 'participation';
+      } else if (!validTypes.includes(String(resolvedType).toLowerCase())) {
+        resolvedType = 'participation';
+      } else {
+        resolvedType = String(resolvedType).toLowerCase();
+      }
+
+      const numPoints = Number(points) || 0;
+      std.xp = Math.max(0, (std.xp || 0) + numPoints);
       const stage = getStageFromXP(std.xp);
       std.level = stage.level;
       std.stageName = stage.levelName;
@@ -795,8 +1053,63 @@
       std.isEgg = stage.isEgg;
       std.progressPct = stage.progressPct;
       std.xpToNext = stage.xpToNext;
+
+      if (!Array.isArray(std.xpHistory)) std.xpHistory = [];
+      const tx = {
+        id: 'tx_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+        amount: numPoints,
+        type: resolvedType,
+        reason: resolvedReason || (numPoints >= 0 ? 'Classroom XP Award' : 'XP Adjustment'),
+        timestamp: new Date().toISOString(),
+        balanceAfter: std.xp
+      };
+      std.xpHistory.push(tx);
+
       saveStudents(students);
       return std;
+    },
+
+    getStudentXPHistory: function(studentId) {
+      const students = getStoredStudents();
+      const std = students.find(s => s.id === studentId);
+      return (std && Array.isArray(std.xpHistory)) ? std.xpHistory.slice().reverse() : [];
+    },
+
+    getStudentXPTransactions: function(studentId) {
+      return this.getStudentXPHistory(studentId);
+    },
+
+    getStudentTotalXP: function(studentId) {
+      const students = getStoredStudents();
+      const std = students.find(s => s.id === studentId);
+      return std ? (Number(std.xp) || 0) : 0;
+    },
+
+    voidXPTransaction: function(studentId, txId, voidReason = 'Voided by teacher') {
+      const students = getStoredStudents();
+      const std = students.find(s => s.id === studentId);
+      if (!std || !Array.isArray(std.xpHistory)) return false;
+
+      const tx = std.xpHistory.find(t => t.id === txId);
+      if (!tx || tx.isVoided || tx.status === 'voided') return false;
+
+      tx.status = 'voided';
+      tx.isVoided = true;
+      tx.voidReason = voidReason;
+      tx.voidedAt = new Date().toISOString();
+
+      std.xp = Math.max(0, (std.xp || 0) - (Number(tx.amount) || 0));
+      const stage = getStageFromXP(std.xp);
+      std.level = stage.level;
+      std.stageName = stage.levelName;
+      std.levelName = stage.levelName;
+      std.stageKey = stage.spriteType;
+      std.isEgg = stage.isEgg;
+      std.progressPct = stage.progressPct;
+      std.xpToNext = stage.xpToNext;
+
+      saveStudents(students);
+      return true;
     },
 
     toggleAttendance: function(studentId) {

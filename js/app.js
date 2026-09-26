@@ -289,6 +289,7 @@
           <!-- Overflow menu (•••) for secondary actions -->
           <button class="student-overflow-btn" onclick="window.appController.toggleOverflow('${student.id}', event)" title="Student Options">•••</button>
           <div class="overflow-dropdown" id="dropdown-${student.id}">
+            <button class="overflow-item" onclick="window.appController.openStudentXPHistory('${student.id}')">📜 View XP Ledger</button>
             <button class="overflow-item" onclick="window.appController.openCustomizer('${student.id}')">🎨 Monster Studio</button>
             <button class="overflow-item" onclick="window.appController.toggleStudentAttendance('${student.id}')">
               ${isAbsent ? '✅ Mark Present' : '❌ Mark Absent'}
@@ -317,7 +318,7 @@
               <div class="student-name-row">
                 <h4 class="student-name">${student.name}</h4>
                 <!-- Chunky tactile game badge for XP -->
-                <span class="student-xp-badge">⭐ ${student.xp} XP</span>
+                <span class="student-xp-badge" onclick="window.appController.openStudentXPHistory('${student.id}')" style="cursor:pointer;" title="View XP Ledger">⭐ ${student.xp} XP</span>
               </div>
               <div class="student-companion-name">🐾 ${student.companionName}</div>
               ${isAbsent ? '<div style="font-size: 0.72rem; color: #ef4444; font-weight: 800; margin-top: 2px;">(Absent)</div>' : ''}
@@ -340,7 +341,7 @@
       ? window.SchoolStore.getStageFromXP(prevXP)
       : (window.getStageFromXP ? window.getStageFromXP(prevXP) : null);
 
-    const std = window.SchoolStore.awardStudentXP(studentId, 10);
+    const std = window.SchoolStore.awardStudentXP(studentId, 10, 'participation', 'Classroom Participation (+10 XP)');
     if (!std) return;
 
     // Acoustic harmonic chime
@@ -1090,7 +1091,7 @@
     const students = window.SchoolStore.getStudents();
     if (students.length > 0) {
       const activeStudent = students[0];
-      window.SchoolStore.awardStudentXP(activeStudent.id, badge.xpReward);
+      window.SchoolStore.awardStudentXP(activeStudent.id, badge.xpReward, 'badge', 'Badge: ' + badge.name);
       setupStats();
       renderClassroomGrid();
     }
@@ -1108,11 +1109,118 @@
     playHarmonicChime('snap');
   }
 
+  /* =========================================================================
+     XP AUDIT LEDGER MODAL CONTROLLER
+     ========================================================================= */
+  function openStudentXPHistory(studentId) {
+    const student = window.SchoolStore.getStudent(studentId);
+    if (!student) return;
+
+    const modal = document.getElementById('xp-history-modal');
+    const titleEl = document.getElementById('xp-history-title');
+    const balanceEl = document.getElementById('xp-history-balance');
+    const avatarBadge = document.getElementById('xp-history-avatar-badge');
+    const container = document.getElementById('xp-history-table-container');
+
+    if (titleEl) titleEl.innerText = `${student.name} — XP Ledger`;
+    if (balanceEl) balanceEl.innerText = `Active Balance: ${(Number(student.xp) || 0).toLocaleString()} XP`;
+    if (avatarBadge) {
+      avatarBadge.innerText = student.element === 'fire' ? '🔥' : student.element === 'thunder' ? '⚡' : student.element === 'astral' ? '✨' : '🌿';
+    }
+
+    const txs = window.SchoolStore.getStudentXPHistory(studentId);
+    if (container) {
+      if (!txs || txs.length === 0) {
+        container.innerHTML = '<div style="padding: 32px; text-align: center; color: #64748b; font-size: 0.95rem;">No XP ledger transactions recorded yet for this cadet.</div>';
+      } else {
+        const typeBadges = {
+          homework: { label: 'Homework', bg: '#eff6ff', color: '#1d4ed8', border: '#bfdbfe', icon: '📝' },
+          quiz: { label: 'Quiz', bg: '#fef3c7', color: '#b45309', border: '#fde68a', icon: '🧠' },
+          participation: { label: 'Participation', bg: '#ecfdf5', color: '#047857', border: '#a7f3d0', icon: '✋' },
+          badge: { label: 'Badge', bg: '#faf5ff', color: '#6d28d9', border: '#ddd6fe', icon: '🎖️' },
+          behavior: { label: 'Behavior', bg: '#fdf2f8', color: '#be185d', border: '#fbcfe8', icon: '⭐' }
+        };
+
+        container.innerHTML = `
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.84rem; text-align: left;">
+              <thead>
+                <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0; color: #475569;">
+                  <th style="padding: 10px 12px; font-weight: 800;">Date &amp; Time</th>
+                  <th style="padding: 10px 12px; font-weight: 800;">Type</th>
+                  <th style="padding: 10px 12px; font-weight: 800; text-align: right;">Amount</th>
+                  <th style="padding: 10px 12px; font-weight: 800; text-align: right;">Balance After</th>
+                  <th style="padding: 10px 12px; font-weight: 800;">Reason</th>
+                  <th style="padding: 10px 12px; font-weight: 800; text-align: center;">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${txs.map(tx => {
+                  const isVoided = !!tx.isVoided || tx.status === 'voided';
+                  const isPos = Number(tx.amount) >= 0;
+                  const dateStr = tx.timestamp ? new Date(tx.timestamp).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
+                  const meta = typeBadges[tx.type] || typeBadges.participation;
+                  return `
+                    <tr style="border-bottom: 1px solid #f1f5f9; ${isVoided ? 'opacity: 0.45; text-decoration: line-through;' : ''}">
+                      <td style="padding: 10px 12px; white-space: nowrap; color: #64748b; font-weight: 600;">${dateStr}</td>
+                      <td style="padding: 10px 12px;">
+                        <span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; font-size: 0.74rem; font-weight: 800; background: ${meta.bg}; color: ${meta.color}; border: 1px solid ${meta.border};">
+                          ${meta.icon} ${meta.label}
+                        </span>
+                      </td>
+                      <td style="padding: 10px 12px; text-align: right; font-weight: 900; color: ${isVoided ? '#94a3b8' : (isPos ? '#059669' : '#dc2626')};">
+                        ${isPos ? '+' : ''}${tx.amount} XP
+                      </td>
+                      <td style="padding: 10px 12px; text-align: right; font-weight: 800; color: #0f172a;">
+                        ${tx.balanceAfter !== undefined ? tx.balanceAfter + ' XP' : '—'}
+                      </td>
+                      <td style="padding: 10px 12px; color: #334155; font-weight: 600; max-width: 260px;">${tx.reason || 'Classroom XP Award'}</td>
+                      <td style="padding: 10px 12px; text-align: center;">
+                        ${!isVoided ? `
+                          <button type="button" onclick="window.appController.voidStudentXP('${student.id}', '${tx.id}')" style="padding: 3px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 700; background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; cursor: pointer;" title="Void this transaction">Void</button>
+                        ` : `
+                          <span style="font-size: 0.72rem; color: #94a3b8; font-weight: 700;">Voided</span>
+                        `}
+                      </td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+    }
+
+    if (modal) modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeStudentXPHistory() {
+    const modal = document.getElementById('xp-history-modal');
+    if (modal) modal.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  function handleVoidStudentXP(studentId, txId) {
+    if (confirm('Are you sure you want to void this XP transaction?')) {
+      const ok = window.SchoolStore.voidXPTransaction(studentId, txId, 'Voided by teacher');
+      if (ok) {
+        setupStats();
+        renderClassroomGrid();
+        openStudentXPHistory(studentId);
+      }
+    }
+  }
+
   /* Public API exposed on window */
   window.appController = {
     showProtocol: openLessonPlanModal,
     closeProtocol: closeLessonPlanModal,
     awardXP: handleAwardXP,
+    openStudentXPHistory: openStudentXPHistory,
+    closeStudentXPHistory: closeStudentXPHistory,
+    voidStudentXP: handleVoidStudentXP,
     toggleOverflow: toggleOverflow,
     toggleStudentAttendance: toggleStudentAttendance,
     openCustomizer: openCustomizerModal,
