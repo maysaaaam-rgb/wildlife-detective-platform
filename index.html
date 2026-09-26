@@ -106,44 +106,84 @@
   </section>
 
   <!-- =========================================================================
-       SEARCH & FILTERS (CURRICULUM LIBRARY)
+       CURRICULUM 4-TRACK SEQUENTIAL LIBRARY & 3-ELEMENT CARDS (V3.0)
        ========================================================================= -->
   <section class="controls-section" id="curriculum-section">
-    <div class="controls-card">
-      <div class="search-row">
-        <div class="search-input-wrapper">
-          <span>🔍</span>
-          <input 
-            type="text" 
-            id="search-input" 
-            class="search-input" 
-            placeholder="Search modules by topic, animal, grammar, or keyword (e.g., Capybara, Axolotl, Treasure, Snorkel Face)..." 
-          />
+    <div id="curriculum-library-root" class="curriculum-library-root">
+      <!-- Library Header Bar -->
+      <header class="curriculum-main-header">
+        <div class="header-left">
+          <div class="header-title-row">
+            <h2 class="curriculum-headline">Curriculum Learning Library</h2>
+            <span class="curriculum-status-pill">✓ Standardized 4-Track System</span>
+          </div>
+          <p class="curriculum-subheadline">Sequential CLIL, STEM, Language &amp; Literature modules aligned with Grade 3–4 CEFR standards.</p>
+        </div>
+        <div class="header-right">
+          <div class="curriculum-search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" 
+              id="curriculum-search-input" 
+              class="curriculum-search-input" 
+              placeholder="Filter active modules, formulas, vocabulary..." 
+              oninput="window.LibraryController && window.LibraryController.handleSearch(this.value)" />
+            <button type="button" 
+              id="curriculum-search-clear" 
+              class="curriculum-search-clear" 
+              style="display:none;"
+              onclick="window.LibraryController && window.LibraryController.clearSearch()" 
+              title="Clear filter">✕</button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Sticky Glassmorphic 4-Track Tab Navigation -->
+      <div class="curriculum-tabs-sticky-wrapper">
+        <nav class="curriculum-track-tabs-bar sticky-glass-bar" aria-label="Curriculum Sequential Tracks">
+          <div class="track-tabs-scroll-container">
+            <button type="button" class="track-tab-btn is-active" onclick="window.LibraryController && window.LibraryController.setTrack('track-1')" role="tab" aria-selected="true">
+              <span class="track-tab-label">🚀 Earth &amp; Space</span>
+              <span class="track-count-pill">3</span>
+            </button>
+            <button type="button" class="track-tab-btn" onclick="window.LibraryController && window.LibraryController.setTrack('track-2')" role="tab" aria-selected="false">
+              <span class="track-tab-label">🛠️ STEM &amp; Inventions</span>
+              <span class="track-count-pill">3</span>
+            </button>
+            <button type="button" class="track-tab-btn" onclick="window.LibraryController && window.LibraryController.setTrack('track-3')" role="tab" aria-selected="false">
+              <span class="track-tab-label">🗣️ Language &amp; Quests</span>
+              <span class="track-count-pill">3</span>
+            </button>
+            <button type="button" class="track-tab-btn" onclick="window.LibraryController && window.LibraryController.setTrack('track-4')" role="tab" aria-selected="false">
+              <span class="track-tab-label">📖 Literature &amp; Diagnostic</span>
+              <span class="track-count-pill">2</span>
+            </button>
+            <button type="button" class="track-tab-btn" onclick="window.LibraryController && window.LibraryController.setTrack('all')" role="tab" aria-selected="false">
+              <span class="track-tab-label">🌟 All Modules</span>
+              <span class="track-count-pill">11</span>
+            </button>
+          </div>
+        </nav>
+      </div>
+
+      <!-- Dynamic Active Track Overview Banner -->
+      <div id="curriculum-track-banner-wrap">
+        <div class="curriculum-track-banner" id="curriculum-track-banner">
+          <div class="banner-content">
+            <div class="banner-title-row">
+              <h2 class="banner-track-title">Track 1: 🚀 Earth, Space &amp; Natural Science</h2>
+              <span class="banner-badge">3 Core Active Modules</span>
+            </div>
+            <p class="banner-track-subtitle">Planetary astronomy, environmental biology, and prehistoric dinosaur adaptation.</p>
+          </div>
         </div>
       </div>
 
-      <div class="filters-row" id="category-filters">
-        <span class="filter-label">Category:</span>
-        <button class="filter-btn active" data-filter-type="category" data-filter-val="all">All Modules</button>
-        <button class="filter-btn" data-filter-type="category" data-filter-val="Science & Media Literacy">🐾 Science & Media Literacy</button>
-        <button class="filter-btn" data-filter-type="category" data-filter-val="Detective & Mystery">🕵️ Detective & Mystery</button>
-        
-        <span class="filter-label" style="margin-left: 14px;">Grade:</span>
-        <button class="filter-btn active" data-filter-type="grade" data-filter-val="all">All Grades</button>
-        <button class="filter-btn" data-filter-type="grade" data-filter-val="4th Grade">4th Grade</button>
-        <button class="filter-btn" data-filter-type="grade" data-filter-val="3rd & 4th Grade">3rd & 4th Grade</button>
-      </div>
+      <!-- Simplified 3-Element Card Grid -->
+      <main class="curriculum-cards-container" id="curriculum-cards-container">
+        <!-- Injected via window.LibraryController.renderCardsGrid() -->
+      </main>
     </div>
   </section>
-
-  <!-- =========================================================================
-       MODULES GALLERY
-       ========================================================================= -->
-  <main class="gallery-section">
-    <div id="modules-gallery" class="gallery-grid">
-      <!-- Dynamically populated by js/app.js -->
-    </div>
-  </main>
 
   <!-- =========================================================================
        DIRECTIVE 2: MULTI-LAYER COMPOSITE VIEWPORT (AVATAR CUSTOMIZER & WARDROBE)
@@ -369,6 +409,8 @@
 
   <!-- Scripts -->
   <script src="js/academy-audio.js"></script>
+  <script src="js/games-data.js"></script>
+  <script src="js/library.js"></script>
   <script src="js/gamification-milestones.js"></script>
   <script src="js/school-store.js"></script>
   <script src="js/app.js"></script>

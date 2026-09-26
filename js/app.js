@@ -882,6 +882,10 @@
   }
 
   function renderGallery() {
+    if (document.getElementById('curriculum-cards-container') && window.LibraryController) {
+      window.LibraryController.renderCardsGrid();
+      return;
+    }
     if (!elements.gallery || !window.SchoolStore) return;
 
     const lessons = window.SchoolStore.search(currentSearch, {
